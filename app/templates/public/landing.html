@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- AOS Library -->
+<link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+
+<!-- Hero Section -->
+<section class="bg-white min-h-screen flex flex-col justify-center items-center text-center px-4">
+    <h1 data-aos="fade-up" data-aos-duration="1000" class="text-4xl md:text-6xl font-bold text-black mb-4">
+        Welcome to Our Library System
+    </h1>
+    <p data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200" class="text-lg md:text-2xl text-black mb-8 max-w-xl">
+        Browse, borrow, and manage books easily with our modern library platform.
+    </p>
+    <a data-aos="fade-up" data-aos-duration="1000" data-aos-delay="400" href="{{ url_for('public.getting_started') }}" class="bg-[#003366] hover:bg-[#002244] text-white font-semibold py-3 px-6 rounded shadow-lg transition-colors duration-300">
+        Get Started
+    </a>
+</section>
+
+<!-- Features Section -->
+<section class="bg-white py-16 px-4">
+    <div class="max-w-6xl mx-auto grid md:grid-cols-3 gap-8 text-center">
+        <div data-aos="fade-up" data-aos-duration="800" class="p-6 border border-gray-200 rounded-lg shadow hover:shadow-lg transition-shadow duration-300">
+            <div class="text-[#FFC72C] text-4xl mb-4">📚</div>
+            <h3 class="text-2xl font-bold text-black mb-2">Extensive Collection</h3>
+            <p class="text-black">
+                Access thousands of books, journals, and resources at your fingertips.
+            </p>
+        </div>
+        <div data-aos="fade-up" data-aos-duration="800" data-aos-delay="200" class="p-6 border border-gray-200 rounded-lg shadow hover:shadow-lg transition-shadow duration-300">
+            <div class="text-[#FFC72C] text-4xl mb-4">🔍</div>
+            <h3 class="text-2xl font-bold text-black mb-2">Advanced Search</h3>
+            <p class="text-black">
+                Quickly find the books or resources you need using smart search filters.
+            </p>
+        </div>
+        <div data-aos="fade-up" data-aos-duration="800" data-aos-delay="400" class="p-6 border border-gray-200 rounded-lg shadow hover:shadow-lg transition-shadow duration-300">
+            <div class="text-[#FFC72C] text-4xl mb-4">📖</div>
+            <h3 class="text-2xl font-bold text-black mb-2">Easy Borrowing</h3>
+            <p class="text-black">
+                Borrow and return books seamlessly with automated tracking.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="bg-[#003366] py-16 text-center text-white">
+    <h2 data-aos="fade-up" data-aos-duration="1000" class="text-3xl md:text-5xl font-bold mb-4">Join Our Library Today</h2>
+    <p data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200" class="text-lg md:text-2xl mb-8">
+        Start exploring thousands of books with just a few clicks.
+    </p>
+    <a data-aos="fade-up" data-aos-duration="1000" data-aos-delay="400" href="/signup" class="bg-[#FFC72C] hover:bg-yellow-500 text-black font-semibold py-3 px-6 rounded shadow-lg transition-colors duration-300">
+        Sign Up Now
+    </a>
+</section>
+
+<!-- Initialize AOS -->
+<script>
+    AOS.init({
+        once: true, // Animate only once
+        offset: 100, // Start animation 100px before element
+    });
+</script>
+{% endblock %}

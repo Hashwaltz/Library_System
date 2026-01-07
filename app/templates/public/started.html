@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- AOS Library -->
+<link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+
+<section class="bg-white min-h-screen flex flex-col justify-center items-center text-center px-4">
+    <h1 data-aos="fade-up" data-aos-duration="1000" class="text-4xl md:text-5xl font-bold text-black mb-6">
+        Welcome! Choose Your Path
+    </h1>
+    <p data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200" class="text-lg md:text-xl text-black mb-12 max-w-lg">
+        Are you a student looking to log in or want to use the time logging system?
+    </p>
+
+    <div class="flex flex-col md:flex-row gap-6">
+        <!-- Staff Login -->
+        <a data-aos="fade-up" data-aos-duration="1000" data-aos-delay="400" href="{{ url_for('auth.staff_login') }}" class="bg-[#003366] hover:bg-[#002244] text-white font-semibold py-4 px-8 rounded shadow-lg transition-colors duration-300 transform hover:-translate-y-1 hover:scale-105">
+            Staff Login
+        </a>
+
+        <!-- Time Logging System -->
+        <a data-aos="fade-up" data-aos-duration="1000" data-aos-delay="600" href="/time-logging" class="bg-[#FFC72C] hover:bg-yellow-500 text-black font-semibold py-4 px-8 rounded shadow-lg transition-colors duration-300 transform hover:-translate-y-1 hover:scale-105">
+            Time Logging System
+        </a>
+    </div>
+</section>
+
+<!-- Initialize AOS -->
+<script>
+    AOS.init({
+        once: true, // Animate only once
+        offset: 100, // Trigger animation 100px before element
+    });
+</script>
+{% endblock %}

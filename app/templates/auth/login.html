@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Staff Login - NC Library{% endblock %}
+
+{% block content %}
+<section class="bg-white min-h-screen flex items-center justify-center px-4">
+  <div class="max-w-md w-full bg-white p-8 rounded-lg shadow-lg">
+    <!-- Heading -->
+    <h2 class="text-3xl font-bold text-[#003366] text-center mb-6">Staff Login</h2>
+    <p class="text-center text-black mb-6">
+      Enter your credentials to access your account
+    </p>
+
+    <!-- Login Form -->
+    <form action="{{ url_for('auth.staff_login') }}" method="POST" class="space-y-4">
+      <!-- Email -->
+      <div>
+        <label for="email" class="block text-black font-semibold mb-1">Email</label>
+        <input type="email" name="email" id="email" required
+               class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-[#003366]">
+      </div>
+
+      <!-- Password -->
+      <div>
+        <label for="password" class="block text-black font-semibold mb-1">Password</label>
+        <input type="password" name="password" id="password" required
+               class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-[#003366]">
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" 
+              class="w-full bg-[#003366] hover:bg-[#002244] text-white font-semibold py-2 px-4 rounded shadow-lg transition-colors duration-300">
+        Login
+      </button>
+    </form>
+  </div>
+</section>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{% if error %}
+<script>
+  Swal.fire({
+    icon: 'error',
+    title: 'Login Failed',
+    text: '{{ error }}',
+    confirmButtonColor: '#003366'
+  });
+</script>
+{% endif %}
+{% endblock %}

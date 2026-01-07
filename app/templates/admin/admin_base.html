@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Admin Dashboard{% endblock %}</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- SweetAlert2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- Font Awesome 6 Free CDN -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <!-- Custom scrollbar -->
+  <style>
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background-color: #1E3A8A; border-radius: 3px; }
+  </style>
+</head>
+<body class="bg-gray-100 flex min-h-screen font-sans">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-[#1E3A8A] text-white flex flex-col shadow-lg">
+    <div class="px-6 py-5 text-center font-extrabold text-2xl border-b border-[#1E40AF]">
+      NC Library Admin
+    </div>
+    <nav class="flex-1 px-6 py-6 space-y-3 overflow-y-auto">
+      <a href="#" class="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-[#1E40AF] transition-colors duration-300">
+        <i class="fas fa-tachometer-alt text-lg"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="#" class="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-[#1E40AF] transition-colors duration-300">
+        <i class="fas fa-users text-lg"></i>
+        <span>Manage Users</span>
+      </a>
+      <a href="#" class="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-[#1E40AF] transition-colors duration-300">
+        <i class="fas fa-book text-lg"></i>
+        <span>Manage Books</span>
+      </a>
+      <a href="#" class="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-[#1E40AF] transition-colors duration-300">
+        <i class="fas fa-users text-lg"></i>
+        <span>Manage Users</span>
+      </a>
+      <a href="#" class="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-[#1E40AF] transition-colors duration-300">
+        <i class="fas fa-history text-lg"></i>
+        <span>Audit Logs</span>
+      </a>
+      <a href="#" class="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-[#1E40AF] transition-colors duration-300">
+        <i class="fas fa-cogs text-lg"></i>
+        <span>Settings</span>
+      </a>
+      <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-[#F43F5E] transition-colors duration-300">
+        <i class="fas fa-sign-out-alt text-lg"></i>
+        <span>Logout</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-8 bg-gray-100">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+      <h1 class="text-4xl font-extrabold text-[#1E3A8A]">{% block header %}Dashboard{% endblock %}</h1>
+      <div class="flex items-center gap-2">
+        <p class="text-gray-700 font-medium">Welcome,</p>
+        <span class="font-bold text-[#1E3A8A]">{{ session.username }}</span>
+      </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="bg-white shadow-md rounded-lg p-6">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+  <!-- SweetAlert flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <script>
+      const flashMessages = [
+        {% for category, message in messages %}
+          {
+            icon: "{{ category }}",
+            title: "{{ 'Error' if category == 'error' else 'Notice' }}",
+            text: "{{ message }}",
+            confirmButtonColor: "#1E3A8A"
+          }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ];
+      flashMessages.forEach(msg => Swal.fire(msg));
+    </script>
+  {% endif %}
+  {% endwith %}
+
+    {% block scripts %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (!logoutBtn) return;
+
+      logoutBtn.addEventListener('click', function(e) {
+        e.preventDefault(); // Prevent immediate navigation
+        const logoutUrl = logoutBtn.getAttribute('data-href');
+
+        Swal.fire({
+          title: 'Are you sure?',
+          text: "You will be logged out of your account!",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#F43F5E',
+          cancelButtonColor: '#1E3A8A',
+          confirmButtonText: 'Yes, logout',
+          cancelButtonText: 'Cancel'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Redirect to logout route
+            window.location.href = logoutUrl;
+          }
+        });
+      });
+    });
+  </script>
+  {% endblock %}
+
+</body>
+</html>

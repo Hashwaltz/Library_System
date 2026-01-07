@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-100">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}NC Library Management System{% endblock %}</title>
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    /* Smooth slide-down animation for mobile menu */
+    #mobile-menu {
+      transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+    }
+
+    #mobile-menu.show {
+      max-height: 500px; /* large enough for all menu items */
+      opacity: 1;
+    }
+
+    /* Hover scale for desktop menu links */
+    .menu-link:hover {
+      transform: scale(1.05);
+      transition: transform 0.2s ease-in-out;
+    }
+
+    /* Get Started button hover bounce */
+    .cta-btn:hover {
+      transform: scale(1.05);
+      transition: transform 0.2s ease-in-out;
+    }
+  </style>
+</head>
+
+<body class="h-full flex flex-col">
+
+  <!-- Navigation Bar -->
+  <nav class="bg-[#003366] sticky top-0 z-50 shadow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16 items-center">
+        <!-- Logo / Brand -->
+        <div class="flex-shrink-0">
+          <a href="/" class="text-[#FFC72C] font-bold text-xl">NC Library</a>
+        </div>
+
+        <!-- Desktop Links -->
+        <div class="hidden md:flex space-x-6 items-center">
+          <a href="/" class="menu-link text-white hover:text-[#FFC72C] font-semibold transition-colors duration-300">Home</a>
+          <a href="/about" class="menu-link text-white hover:text-[#FFC72C] font-semibold transition-colors duration-300">About</a>
+          <a href="/catalog" class="menu-link text-white hover:text-[#FFC72C] font-semibold transition-colors duration-300">Catalog</a>
+          <a href="/time-logging" class="menu-link text-white hover:text-[#FFC72C] font-semibold transition-colors duration-300">Time Logging</a>
+          <a href="/contact" class="menu-link text-white hover:text-[#FFC72C] font-semibold transition-colors duration-300">Contact</a>
+
+          <!-- CTA Button -->
+          <a href="{{ url_for('public.getting_started') }}"
+            class="cta-btn ml-4 bg-[#FFC72C] hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded shadow transition-colors duration-300">
+            Get Started
+          </a>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <div class="md:hidden">
+          <button id="menu-btn" class="text-white focus:outline-none transform transition-transform duration-300">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div class="md:hidden" id="mobile-menu">
+      <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <a href="/" class="block menu-link text-white hover:text-[#FFC72C] font-semibold transition-colors duration-300">Home</a>
+        <a href="/about" class="block menu-link text-white hover:text-[#FFC72C] font-semibold transition-colors duration-300">About</a>
+        <a href="/catalog" class="block menu-link text-white hover:text-[#FFC72C] font-semibold transition-colors duration-300">Catalog</a>
+        <a href="/time-logging" class="block menu-link text-white hover:text-[#FFC72C] font-semibold transition-colors duration-300">Time Logging</a>
+        <a href="/contact" class="block menu-link text-white hover:text-[#FFC72C] font-semibold transition-colors duration-300">Contact</a>
+        <a href="{{ url_for('public.getting_started') }}"
+          class="block cta-btn bg-[#FFC72C] hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded shadow transition-colors duration-300 mt-2">
+          Get Started
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Content -->
+  <main class="flex-1">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Mobile Menu Script -->
+  <script>
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    menuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('show');
+
+      // Animate button icon (hamburger to X)
+      menuBtn.classList.toggle('rotate-90');
+    });
+  </script>
+</body>
+
+</html>

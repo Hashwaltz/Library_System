@@ -1,0 +1,194 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Admin Dashboard - NC Library{% endblock %}
+
+{% block header %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+  <!-- Total Users Card -->
+  <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative overflow-hidden">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-lg font-semibold text-gray-800">Total Users</h2>
+        <p class="mt-2 text-3xl font-bold text-[#003366]">{{ total_users }}</p>
+      </div>
+      <div class="text-[#003366] text-4xl">
+        <i class="fa-solid fa-users"></i>
+      </div>
+    </div>
+    <div class="absolute bottom-4 right-4 text-gray-200 text-6xl opacity-10">
+      <i class="fa-solid fa-users"></i>
+    </div>
+  </div>
+
+  <!-- Total Books Card -->
+  <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative overflow-hidden">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-lg font-semibold text-gray-800">Total Books</h2>
+        <p class="mt-2 text-3xl font-bold text-[#003366]">{{ total_books }}</p>
+      </div>
+      <div class="text-[#003366] text-4xl">
+        <i class="fa-solid fa-book"></i>
+      </div>
+    </div>
+    <div class="absolute bottom-4 right-4 text-gray-200 text-6xl opacity-10">
+      <i class="fa-solid fa-book"></i>
+    </div>
+  </div>
+
+  <!-- Borrowed Books Card -->
+  <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative overflow-hidden">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-lg font-semibold text-gray-800">Borrowed Books</h2>
+        <p class="mt-2 text-3xl font-bold text-[#003366]">{{ total_borrowed }}</p>
+      </div>
+      <div class="text-[#003366] text-4xl">
+        <i class="fa-solid fa-book-reader"></i>
+      </div>
+    </div>
+    <div class="absolute bottom-4 right-4 text-gray-200 text-6xl opacity-10">
+      <i class="fa-solid fa-book-reader"></i>
+    </div>
+  </div>
+
+</div>
+
+<!-- Quick Stats -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+  <!-- Overdue Books -->
+  <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative overflow-hidden">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-lg font-semibold text-gray-800">Overdue Books</h2>
+        <p class="mt-2 text-3xl font-bold text-red-600">{{ overdue_books }}</p>
+      </div>
+      <div class="text-red-600 text-4xl">
+        <i class="fa-solid fa-clock"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Members -->
+  <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative overflow-hidden">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-lg font-semibold text-gray-800">Active Members</h2>
+        <p class="mt-2 text-3xl font-bold text-green-600">{{ active_members }}</p>
+      </div>
+      <div class="text-green-600 text-4xl">
+        <i class="fa-solid fa-user-check"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h2>
+    <div class="flex flex-col gap-3">
+      <button class="bg-[#003366] text-white py-2 px-4 rounded hover:bg-[#1E40AF] transition-colors flex items-center gap-2">
+        <i class="fa-solid fa-plus"></i> Add User
+      </button>
+      <button class="bg-[#003366] text-white py-2 px-4 rounded hover:bg-[#1E40AF] transition-colors flex items-center gap-2">
+        <i class="fa-solid fa-plus"></i> Add Book
+      </button>
+      <button class="bg-[#003366] text-white py-2 px-4 rounded hover:bg-[#1E40AF] transition-colors flex items-center gap-2">
+        <i class="fa-solid fa-book"></i> Borrow Book
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Notes / Reminders -->
+<div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div class="bg-white p-6 rounded-2xl shadow-lg">
+    <h2 class="text-xl font-semibold text-gray-800 mb-4">Reminders</h2>
+    <ul class="list-disc list-inside text-gray-700 space-y-2">
+      <li>Check overdue books daily.</li>
+      <li>Approve new user registrations.</li>
+      <li>Update library catalog weekly.</li>
+      <li>Review borrowed books activity.</li>
+    </ul>
+  </div>
+
+  <div class="bg-white p-6 rounded-2xl shadow-lg">
+    <h2 class="text-xl font-semibold text-gray-800 mb-4">Notes</h2>
+    <p class="text-gray-700">Use this section to add internal admin notes or reminders for upcoming events, maintenance, or announcements.</p>
+  </div>
+</div>
+
+<!-- Monthly Activity & Book Status Charts -->
+<div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6">
+
+  <!-- Bar Chart -->
+  <div class="bg-white p-6 rounded-2xl shadow-lg">
+    <h2 class="text-xl font-semibold text-gray-800 mb-4">Monthly Borrowed Books</h2>
+    <div style="height: 300px;">
+      <canvas id="borrowedBarChart" style="width: 100%; height: 100%; display: block;"></canvas>
+    </div>
+  </div>
+
+  <!-- Donut Chart -->
+  <div class="bg-white p-6 rounded-2xl shadow-lg flex flex-col items-center justify-center">
+    <h2 class="text-xl font-semibold text-gray-800 mb-4">Book Status Distribution</h2>
+    <div style="height: 300px; width: 100%; display: flex; align-items: center; justify-content: center;">
+      <canvas id="bookStatusChart" style="max-width: 100%; max-height: 100%;"></canvas>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Bar Chart
+  const borrowedCtx = document.getElementById('borrowedBarChart').getContext('2d');
+  const borrowedBarChart = new Chart(borrowedCtx, {
+      type: 'bar',
+      data: {
+          labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+          datasets: [{
+              label: 'Borrowed Books',
+              data: [12, 19, 3, 5, 2, 3, 10, 8, 6, 7, 4, 9],
+              backgroundColor: '#003366'
+          }]
+      },
+      options: {
+          responsive: true,
+          maintainAspectRatio: true, // keep aspect ratio inside fixed container
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true } }
+      }
+  });
+
+  // Donut Chart
+  const statusCtx = document.getElementById('bookStatusChart').getContext('2d');
+  const bookStatusChart = new Chart(statusCtx, {
+      type: 'doughnut',
+      data: {
+          labels: ['BSCS', 'BEED', 'BSHM', 'BSED', 'ALUMNI', 'FACULTY'],
+          datasets: [{
+              data: [30, 45, 20, 25, 3, 7],
+              backgroundColor: [
+                  '#10B981', '#3B82F6', '#EF4444',
+                  '#F59E0B', '#8B5CF6', '#06B6D4'
+              ],
+              borderWidth: 1
+          }]
+      },
+      options: {
+          responsive: true,
+          maintainAspectRatio: true, // keep aspect ratio inside fixed container
+          plugins: {
+              legend: { position: 'bottom', labels: { boxWidth: 20, padding: 15 } }
+          },
+          cutout: '50%' // donut style
+      }
+  });
+</script>
+{% endblock %}
