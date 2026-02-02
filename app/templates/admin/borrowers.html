@@ -1,0 +1,48 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Library System - Entry{% endblock %}
+{% block header %}Manage Borrowers{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-8">
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-10 w-full max-w-5xl">
+
+    <!-- Student Entry -->
+    <a href="{{ url_for('admin.students_list') }}" 
+       class="bg-[#004080] hover:bg-[#002244] text-white rounded-2xl shadow-2xl p-12 flex flex-col items-center justify-center transition transform hover:-translate-y-2">
+      <div class="bg-white/20 p-6 rounded-full mb-6">
+        <i class="fas fa-user-graduate text-5xl"></i>
+      </div>
+      <span class="text-2xl font-bold">Student</span>
+    </a>
+
+    <!-- Faculty Entry -->
+    <a href="{{ url_for('admin.faculty_list') }}" 
+       class="bg-[#1e3a8a] hover:bg-[#0f1f45] text-white rounded-2xl shadow-2xl p-12 flex flex-col items-center justify-center transition transform hover:-translate-y-2">
+      <div class="bg-white/20 p-6 rounded-full mb-6">
+        <i class="fas fa-chalkboard-teacher text-5xl"></i>
+      </div>
+      <span class="text-2xl font-bold">Faculty</span>
+    </a>
+
+    <!-- Alumni Entry -->
+    <a href="{{ url_for('admin.alumni_list') }}" 
+       class="bg-[#047857] hover:bg-[#024d39] text-white rounded-2xl shadow-2xl p-12 flex flex-col items-center justify-center transition transform hover:-translate-y-2">
+      <div class="bg-white/20 p-6 rounded-full mb-6">
+        <i class="fas fa-user-friends text-5xl"></i>
+      </div>
+      <span class="text-2xl font-bold">Alumni</span>
+    </a>
+
+    <!-- Visitors Entry -->
+    <a href="#" 
+       class="bg-[#b45309] hover:bg-[#78350f] text-white rounded-2xl shadow-2xl p-12 flex flex-col items-center justify-center transition transform hover:-translate-y-2">
+      <div class="bg-white/20 p-6 rounded-full mb-6">
+        <i class="fas fa-user text-5xl"></i>
+      </div>
+      <span class="text-2xl font-bold">Visitors</span>
+    </a>
+
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,269 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Alumni List{% endblock %}
+{% block header %}Alumni Management{% endblock %}
+
+{% block content %}
+<div class="col-span-full bg-white shadow-xl rounded-xl p-6 border-l-4 border-[#004080]">
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+    <h2 class="text-xl font-semibold text-[#004080]">Alumni List</h2>
+    <div class="flex gap-2">
+      <button type="button" onclick="openAddAlumniModal()" class="bg-[#004080] text-white px-4 py-2 rounded-lg hover:bg-[#002244] transition flex items-center gap-2">
+        <i class="fas fa-user-plus"></i>
+        <span>Add Alumni</span>
+      </button>
+      <a href="#" class="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition flex items-center gap-2">
+        <i class="fas fa-user-slash"></i><span>Inactive Alumni</span>
+      </a>
+      <a href="#" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-800 transition flex items-center gap-2">
+        <i class="fas fa-users-cog"></i><span>Batch Add</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="mb-4">
+    <input type="text" id="searchInput" placeholder="Search alumni..." class="w-full md:w-1/3 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#004080]" />
+  </div>
+
+  <!-- Table -->
+  <div class="overflow-x-auto">
+    <table class="min-w-full border border-gray-200 rounded">
+      <thead class="bg-[#004080] text-white">
+        <tr>
+          <th class="px-4 py-3 text-left text-sm font-semibold">Student Number</th>
+          <th class="px-4 py-3 text-center text-sm font-semibold">Name</th>
+          <th class="px-4 py-3 text-center text-sm font-semibold">Course</th>
+          <th class="px-4 py-3 text-center text-sm font-semibold">Designation</th>
+          <th class="px-4 py-3 text-center text-sm font-semibold">Email</th>
+          <th class="px-4 py-3 text-center text-sm font-semibold">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y">
+        {% for student in students_pagination.items %}
+        <tr class="hover:bg-blue-50 cursor-pointer">
+          <td class="px-4 py-3 text-center text-black">{{ student.stdnum }}</td>
+          <td class="px-4 py-3 text-center text-black">{{ student.lastname }}, {{ student.firstname }} {{ student.middlename or '' }}</td>
+          <td class="px-4 py-3 text-center text-black">{{ student.course_rel.name }}</td>
+          <td class="px-4 py-3 text-center text-black">{{ student.designation | upper }}</td>
+          <td class="px-4 py-3 text-center text-black">{{ student.email }}</td>
+          <td class="px-4 py-3 text-center">
+            <button
+              onclick='openEditAlumniModal({ 
+                id: {{ student.id }}, 
+                stdnum: "{{ student.stdnum }}", 
+                firstname: "{{ student.firstname }}", 
+                middlename: "{{ student.middlename or "" }}", 
+                lastname: "{{ student.lastname }}", 
+                email: "{{ student.email }}", 
+                designation: "{{ student.designation }}", 
+                level: {{ student.level }}, 
+                course_id: {{ student.course_id }}, 
+                address: "{{ student.address }}", 
+                contact: "{{ student.phone }}" 
+              })'
+              class="text-yellow-600 hover:text-yellow-800"
+            >
+              <i class="fas fa-edit"></i>
+            </button>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="text-center py-6 text-gray-500">No alumni found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="mt-4 flex justify-center items-center space-x-2">
+    <button id="prevPage" class="px-3 py-1 bg-[#cbd5e1] rounded hover:bg-gray-300">Prev</button>
+    <span id="pageInfo" class="px-3 py-1 bg-[#e2e8f0] rounded">Page 1</span>
+    <button id="nextPage" class="px-3 py-1 bg-[#cbd5e1] rounded hover:bg-gray-300">Next</button>
+  </div>
+</div>
+
+<!-- Add Alumni Modal -->
+<div id="addAlumniModal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 relative">
+    <button onclick="closeAddAlumniModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
+      <i class="fas fa-times"></i>
+    </button>
+    <h3 class="text-xl font-semibold text-[#004080] mb-4">Add Alumni</h3>
+    <form method="POST" action="{{ url_for('admin.add_alumni') }}">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Standard fields -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Student Number</label>
+          <input type="text" name="stdnum" required class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Email</label>
+          <input type="email" name="email" required class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">First Name</label>
+          <input type="text" name="firstname" required class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Last Name</label>
+          <input type="text" name="lastname" required class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Middle Name</label>
+          <input type="text" name="middlename" class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Level (1–4)</label>
+          <input type="number" name="level" min="1" max="4" required class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700">Course</label>
+          <select name="course_id" required class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]">
+            {% for course in courses %}
+            <option value="{{ course.id }}">{{ course.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Designation</label>
+          <input type="text" name="designation" class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Contact Number</label>
+          <input type="text" name="contact" class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700">Address</label>
+          <input type="text" name="address" class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 mt-6">
+        <button type="button" onclick="closeAddAlumniModal()" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancel</button>
+        <button type="submit" class="px-4 py-2 bg-[#004080] text-white rounded hover:bg-[#002244]">Add Alumni</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Alumni Modal -->
+<div id="editAlumniModal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 relative">
+    <button onclick="closeEditAlumniModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
+      <i class="fas fa-times"></i>
+    </button>
+    <h3 class="text-xl font-semibold text-[#004080] mb-4">Edit Alumni</h3>
+    <form method="POST" id="editAlumniForm">
+      <input type="hidden" name="id" id="editAlumniId" />
+      <!-- Fields are identical to Add Modal -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Student Number</label>
+          <input type="text" name="stdnum" id="editStdnum" required class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Email</label>
+          <input type="email" name="email" id="editEmail" required class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">First Name</label>
+          <input type="text" name="firstname" id="editFirstname" required class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Last Name</label>
+          <input type="text" name="lastname" id="editLastname" required class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Middle Name</label>
+          <input type="text" name="middlename" id="editMiddlename" class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Level (1–4)</label>
+          <input type="number" name="level" id="editLevel" min="1" max="4" required class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700">Course</label>
+          <select name="course_id" id="editCourseId" required class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]">
+            {% for course in courses %}
+            <option value="{{ course.id }}">{{ course.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Designation</label>
+          <input type="text" name="designation" id="editDesignation" class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Contact Number</label>
+          <input type="text" name="contact" id="editContact" class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700">Address</label>
+          <input type="text" name="address" id="editAddress" class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 mt-6">
+        <button type="button" onclick="closeEditAlumniModal()" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancel</button>
+        <button type="submit" class="px-4 py-2 bg-[#004080] text-white rounded hover:bg-[#002244]">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Search & Pagination
+  const searchInput = document.getElementById("searchInput");
+  const rows = Array.from(document.querySelectorAll("tbody tr"));
+  const rowsPerPage = 10;
+  let currentPage = 1;
+
+  function showPage(page) {
+    const searchValue = searchInput.value.toLowerCase();
+    const filteredRows = rows.filter(row => {
+      if (row.querySelector("td[colspan]")) return false;
+      return Array.from(row.cells).some(td => td.textContent.toLowerCase().includes(searchValue));
+    });
+
+    const totalPages = Math.ceil(filteredRows.length / rowsPerPage) || 1;
+    if (page > totalPages) currentPage = totalPages;
+    if (page < 1) currentPage = 1;
+
+    rows.forEach(r => r.style.display = "none");
+    filteredRows.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage).forEach(r => r.style.display = "");
+    document.getElementById("pageInfo").textContent = `Page ${currentPage} of ${totalPages}`;
+  }
+
+  document.getElementById("prevPage").addEventListener("click", () => { currentPage--; showPage(currentPage); });
+  document.getElementById("nextPage").addEventListener("click", () => { currentPage++; showPage(currentPage); });
+  searchInput.addEventListener("keyup", () => { currentPage = 1; showPage(currentPage); });
+  showPage(currentPage);
+
+  // Modals
+  function openAddAlumniModal() { document.getElementById("addAlumniModal").classList.remove("hidden"); document.getElementById("addAlumniModal").classList.add("flex"); }
+  function closeAddAlumniModal() { document.getElementById("addAlumniModal").classList.add("hidden"); document.getElementById("addAlumniModal").classList.remove("flex"); }
+
+  function openEditAlumniModal(student) {
+    document.getElementById("editAlumniId").value = student.id;
+    document.getElementById("editStdnum").value = student.stdnum;
+    document.getElementById("editFirstname").value = student.firstname;
+    document.getElementById("editMiddlename").value = student.middlename || "";
+    document.getElementById("editLastname").value = student.lastname;
+    document.getElementById("editEmail").value = student.email;
+    document.getElementById("editDesignation").value = student.designation;
+    document.getElementById("editLevel").value = student.level;
+    document.getElementById("editCourseId").value = student.course_id;
+    document.getElementById("editAddress").value = student.address;
+    document.getElementById("editContact").value = student.contact;
+    document.getElementById("editAlumniForm").action = `/admin/alumni/edit/${student.id}`;
+
+    const modal = document.getElementById("editAlumniModal");
+    modal.classList.remove("hidden"); modal.classList.add("flex");
+  }
+
+  function closeEditAlumniModal() { const modal = document.getElementById("editAlumniModal"); modal.classList.add("hidden"); modal.classList.remove("flex"); }
+</script>
+{% endblock %}

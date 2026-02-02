@@ -1,6 +1,7 @@
 from app.extensions import db
 
 class Borrower(db.Model):
+    __tablename__ = 'borrower'
     id = db.Column(db.Integer, primary_key=True)
     employee_number = db.Column(db.String(80), unique=True, nullable=True)
     lastname = db.Column(db.String(120), nullable=False)
@@ -13,5 +14,21 @@ class Borrower(db.Model):
     remarks = db.Column(db.String(200), nullable=True)
     contact_number = db.Column(db.String(20), nullable=True)
 
+    attendance_logs = db.relationship('EntryLog', back_populates='borrower', cascade='all, delete-orphan') 
+
     def __repr__(self):
         return f'<Borrower {self.borrower_type} ID: {self.borrower_id}>'
+    
+
+
+class Guest(db.Model):
+    __tablename__ = 'guest_borrower'
+    id = db.Column(db.Integer, primary_key=True)
+    fullname = db.Column(db.String(200), nullable=False)
+    contact_number = db.Column(db.String(20), nullable=True)
+    address = db.Column(db.String(250), nullable=True)
+    designation = db.Column(db.String(100), nullable=True)
+
+
+    def __repr__(self):
+        return f'<GuestBorrower {self.fullname}>'

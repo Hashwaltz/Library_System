@@ -1,0 +1,288 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Faculty List{% endblock%} 
+{% block header %}Faculty Management{% endblock %} 
+{% block content %}
+
+<div class="col-span-full bg-white shadow-xl rounded-xl p-6 border-l-4 border-[#004080]">
+
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+    <h2 class="text-xl font-semibold text-[#004080]">Faculty List</h2>
+
+    <div class="flex gap-2">
+      <button
+        type="button"
+        onclick="openAddFacultyModal()"
+        class="bg-[#004080] text-white px-4 py-2 rounded-lg hover:bg-[#002244] transition flex items-center gap-2"
+      >
+        <i class="fas fa-user-plus"></i>
+        <span>Add Faculty</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="mb-4">
+    <input
+      type="text"
+      id="searchInput"
+      placeholder="Search faculty..."
+      class="w-full md:w-1/3 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#004080]"
+    />
+  </div>
+
+  <!-- Table -->
+  <div class="overflow-x-auto">
+    <table class="min-w-full border border-gray-200 rounded">
+      <thead class="bg-[#004080] text-white">
+        <tr>
+          <th class="px-4 py-3 text-center text-sm font-semibold">Employee Number</th>
+          <th class="px-4 py-3 text-center text-sm font-semibold">Name</th>
+          <th class="px-4 py-3 text-center text-sm font-semibold">Department</th>
+          <th class="px-4 py-3 text-center text-sm font-semibold">Contact Number</th>
+          <th class="px-4 py-3 text-center text-sm font-semibold">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y">
+        {% for faculty in faculty_pagination.items %}
+        <tr class="hover:bg-blue-50 cursor-pointer">
+          <td class="px-4 py-3 text-center text-black">{{ faculty.employee_number or '-' }}</td>
+          <td class="px-4 py-3 text-center text-black">
+            {{ faculty.lastname }}, {{ faculty.firstname }} {{ faculty.middlename or '' }}
+          </td>
+          <td class="px-4 py-3 text-center text-black">{{ faculty.department or '-' }}</td>
+          <td class="px-4 py-3 text-center text-black">{{ faculty.contact_number or '-' }}</td>
+          <td class="px-4 py-3 text-center">
+            <button
+              onclick='openEditFacultyModal({ 
+                id: {{ faculty.id }}, 
+                employee_number: "{{ faculty.employee_number or "" }}", 
+                firstname: "{{ faculty.firstname }}", 
+                middlename: "{{ faculty.middlename or "" }}", 
+                lastname: "{{ faculty.lastname }}", 
+                department: "{{ faculty.department or "" }}", 
+                contact: "{{ faculty.contact or "" }}", 
+                contact_number: "{{ faculty.contact_number or "" }}", 
+                date_hired: "{{ faculty.date_hired or "" }}", 
+                remarks: "{{ faculty.remarks or "" }}" 
+              })'
+              class="text-yellow-600 hover:text-yellow-800"
+            >
+              <i class="fas fa-edit"></i>
+            </button>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="5" class="text-center py-6 text-gray-500">
+            No faculty found.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="mt-4 flex justify-center items-center space-x-2">
+    <button id="prevPage" class="px-3 py-1 bg-[#cbd5e1] rounded hover:bg-gray-300">Prev</button>
+    <span id="pageInfo" class="px-3 py-1 bg-[#e2e8f0] rounded">Page 1</span>
+    <button id="nextPage" class="px-3 py-1 bg-[#cbd5e1] rounded hover:bg-gray-300">Next</button>
+  </div>
+</div>
+
+<!-- Add Faculty Modal -->
+<div id="addFacultyModal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 relative">
+    <button onclick="closeAddFacultyModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
+      <i class="fas fa-times"></i>
+    </button>
+    <h3 class="text-xl font-semibold text-[#004080] mb-4">Add Faculty</h3>
+
+    <form method="POST" action="{{ url_for('admin.add_faculty') }}">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Employee Number</label>
+          <input type="text" name="employee_number" class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">First Name</label>
+          <input type="text" name="firstname" required class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Last Name</label>
+          <input type="text" name="lastname" required class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Middle Name</label>
+          <input type="text" name="middlename" class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700">Department</label>
+          <input type="text" name="department" class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Contact</label>
+          <input type="text" name="contact" class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Contact Number</label>
+          <input type="text" name="contact_number" class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Date Hired</label>
+          <input type="date" name="date_hired" class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700">Remarks</label>
+          <input type="text" name="remarks" class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 mt-6">
+        <button type="button" onclick="closeAddFacultyModal()" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancel</button>
+        <button type="submit" class="px-4 py-2 bg-[#004080] text-white rounded hover:bg-[#002244]">Add Faculty</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Faculty Modal -->
+<div id="editFacultyModal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 relative">
+    <button onclick="closeEditFacultyModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
+      <i class="fas fa-times"></i>
+    </button>
+    <h3 class="text-xl font-semibold text-[#004080] mb-4">Edit Faculty</h3>
+
+    <form method="POST" id="editFacultyForm">
+      <input type="hidden" name="id" id="editFacultyId" />
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Employee Number</label>
+          <input type="text" name="employee_number" id="editEmployeeNumber" class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">First Name</label>
+          <input type="text" name="firstname" id="editFirstname" class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Last Name</label>
+          <input type="text" name="lastname" id="editLastname" class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Middle Name</label>
+          <input type="text" name="middlename" id="editMiddlename" class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700">Department</label>
+          <input type="text" name="department" id="editDepartment" class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Contact</label>
+          <input type="text" name="contact" id="editContact" class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Contact Number</label>
+          <input type="text" name="contact_number" id="editContactNumber" class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Date Hired</label>
+          <input type="date" name="date_hired" id="editDateHired" class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700">Remarks</label>
+          <input type="text" name="remarks" id="editRemarks" class="w-full border rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-[#004080]" />
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 mt-6">
+        <button type="button" onclick="closeEditFacultyModal()" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancel</button>
+        <button type="submit" class="px-4 py-2 bg-[#004080] text-white rounded hover:bg-[#002244]">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+  // Search & Pagination
+  const searchInput = document.getElementById("searchInput");
+  const rows = Array.from(document.querySelectorAll("tbody tr"));
+  const rowsPerPage = 10;
+  let currentPage = 1;
+
+  function showPage(page) {
+    const searchValue = searchInput.value.toLowerCase();
+    const filteredRows = rows.filter((row) => {
+      if (row.querySelector("td[colspan]")) return false;
+      return Array.from(row.cells)
+        .slice(1)
+        .some((td) => td.textContent.toLowerCase().includes(searchValue));
+    });
+
+    const totalPages = Math.ceil(filteredRows.length / rowsPerPage) || 1;
+    if (page > totalPages) currentPage = totalPages;
+    if (page < 1) currentPage = 1;
+
+    rows.forEach((r) => (r.style.display = "none"));
+    filteredRows
+      .slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage)
+      .forEach((r) => (r.style.display = ""));
+    document.getElementById("pageInfo").textContent = `Page ${currentPage} of ${totalPages}`;
+  }
+
+  document.getElementById("prevPage").addEventListener("click", () => { currentPage--; showPage(currentPage); });
+  document.getElementById("nextPage").addEventListener("click", () => { currentPage++; showPage(currentPage); });
+  searchInput.addEventListener("keyup", () => { currentPage = 1; showPage(currentPage); });
+  showPage(currentPage);
+
+  // Modals
+  function openAddFacultyModal() { document.getElementById("addFacultyModal").classList.remove("hidden"); document.getElementById("addFacultyModal").classList.add("flex"); }
+  function closeAddFacultyModal() { document.getElementById("addFacultyModal").classList.add("hidden"); document.getElementById("addFacultyModal").classList.remove("flex"); }
+
+  function openEditFacultyModal(faculty) {
+    document.getElementById("editFacultyId").value = faculty.id;
+    document.getElementById("editEmployeeNumber").value = faculty.employee_number || "";
+    document.getElementById("editFirstname").value = faculty.firstname;
+    document.getElementById("editMiddlename").value = faculty.middlename || "";
+    document.getElementById("editLastname").value = faculty.lastname;
+    document.getElementById("editDepartment").value = faculty.department || "";
+    document.getElementById("editContact").value = faculty.contact || "";
+    document.getElementById("editContactNumber").value = faculty.contact_number || "";
+    document.getElementById("editDateHired").value = faculty.date_hired || "";
+    document.getElementById("editRemarks").value = faculty.remarks || "";
+
+    const form = document.getElementById("editFacultyForm");
+    form.action = `/admin/faculty/edit/${faculty.id}`;
+
+    const modal = document.getElementById("editFacultyModal");
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+  }
+
+  function closeEditFacultyModal() {
+    const modal = document.getElementById("editFacultyModal");
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+  }
+</script>
+{% endblock %}
