@@ -11,7 +11,7 @@ from . import admin_bp
 # FACULTY LIST VIEW
 # -----------------------------
 @admin_bp.route("/faculty")
-@role_required("Admin")
+@role_required("admin")
 def faculty_list():
     page = request.args.get("page", 1, type=int)
     per_page = 10
@@ -30,7 +30,7 @@ def faculty_list():
 # ADD FACULTY
 # -----------------------------
 @admin_bp.route("/faculty/add", methods=["POST"])
-@role_required("Admin")
+@role_required("admin")
 def add_faculty():
     employee_number = request.form.get("employee_number").strip()
     firstname = request.form.get("firstname").strip()
@@ -79,7 +79,7 @@ def add_faculty():
 # EDIT FACULTY
 # -----------------------------
 @admin_bp.route("/faculty/edit/<int:faculty_id>", methods=["POST"])
-@role_required("Admin")
+@role_required("admin")
 def edit_faculty(faculty_id):
     faculty = Borrower.query.get_or_404(faculty_id)
 

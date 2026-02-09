@@ -1,4 +1,5 @@
 from app.extensions import db
+from sqlalchemy.sql import expression
 
 class Borrower(db.Model):
     __tablename__ = 'borrower'
@@ -13,6 +14,7 @@ class Borrower(db.Model):
     date_hired = db.Column(db.Date, nullable=True)
     remarks = db.Column(db.String(200), nullable=True)
     contact_number = db.Column(db.String(20), nullable=True)
+    is_active = db.Column(db.Boolean, nullable=False, server_default=expression.true())
 
     attendance_logs = db.relationship('EntryLog', back_populates='borrower', cascade='all, delete-orphan') 
 

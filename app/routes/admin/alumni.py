@@ -10,7 +10,7 @@ from . import admin_bp
 # ALUMNI LIST VIEW
 # -----------------------------
 @admin_bp.route("/alumni-list")
-@role_required("Admin")
+@role_required("admin")
 def alumni_list():
     page = request.args.get("page", 1, type=int)
     per_page = 10
@@ -32,7 +32,7 @@ def alumni_list():
 # ADD ALUMNI
 # -----------------------------
 @admin_bp.route("/alumni/add", methods=["POST"])
-@role_required("Admin")
+@role_required("admin")
 def add_alumni():
     stdnum = request.form.get("stdnum").strip()
     firstname = request.form.get("firstname").strip()
@@ -87,7 +87,7 @@ def add_alumni():
 # EDIT ALUMNI
 # -----------------------------
 @admin_bp.route("/alumni/edit/<int:student_id>", methods=["POST"])
-@role_required("Admin")
+@role_required("admin")
 def edit_alumni(student_id):
     student = Student.query.get_or_404(student_id)
 

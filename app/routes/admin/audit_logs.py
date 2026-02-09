@@ -5,7 +5,7 @@ from app.utils.decorators import role_required
 from . import admin_bp
 
 @admin_bp.route("/audit-logs")
-@role_required("Admin")
+@role_required("admin")
 def audit_logs():
     page = request.args.get("page", 1, type=int)
     per_page = 20
@@ -18,12 +18,12 @@ def audit_logs():
 
 
 @admin_bp.route("/audit-log/<int:log_id>", endpoint="audit_log_detail")
-@role_required("Admin")
+@role_required("admin")
 def audit_log_detail(log_id):
     log = AuditLog.query.get_or_404(log_id)
     return jsonify({
         "Date & Time": log.timestamp.strftime("%Y-%m-%d %I:%M %p"),
-        "Admin ID": log.user_id or "System",
+        "admin ID": log.user_id or "System",
         "Action": log.action,
         "Table": log.table_name,
         "Record ID": log.record_id or "-",

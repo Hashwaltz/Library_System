@@ -8,7 +8,7 @@ from . import admin_bp
 
 
 @admin_bp.route("/students-list")
-@role_required("Admin")
+@role_required("admin")
 def students_list():
     page = request.args.get("page", 1, type=int)
     per_page = 10  # number of students per page
@@ -25,7 +25,7 @@ def students_list():
 
 
 @admin_bp.route("/students/add", methods=["POST"])
-@role_required("Admin")
+@role_required("admin")
 def add_student():
     stdnum = request.form.get("stdnum").strip()
     firstname = request.form.get("firstname").strip()
@@ -98,7 +98,7 @@ def add_student():
 
 
 @admin_bp.route("/students/edit/<int:student_id>", methods=["POST"])
-@role_required("Admin")
+@role_required("admin")
 def edit_student(student_id):
     student = Student.query.get_or_404(student_id)
 

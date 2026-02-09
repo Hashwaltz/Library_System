@@ -11,14 +11,14 @@ from . import admin_bp
 
 
 @admin_bp.route('/reports')
-@role_required("Admin")
+@role_required("admin")
 def reports_dashboard():
     return render_template('admin/reports/dashboard.html')
 
 
 
 @admin_bp.route('/reports/attendance')
-@role_required("Admin")
+@role_required("admin")
 def attendance_report():
     page = request.args.get('page', 1, type=int)
     per_page = 10  # number of records per page
@@ -37,7 +37,7 @@ def attendance_report():
                            pagination=pagination)
 
 @admin_bp.route('/reports/books')
-@role_required("Admin")
+@role_required("admin")
 def book_report():
     page = request.args.get('page', 1, type=int)
     per_page = 10  # number of records per page
@@ -58,7 +58,7 @@ def book_report():
 
 
 @admin_bp.route('/reports/student')
-@role_required("Admin")
+@role_required("admin")
 def student_report():
     page = request.args.get('page', 1, type=int)
     per_page = 10  # number of records per page

@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}Student Entry Log{% endblock %}
+
+{% block content %}
+<section class="min-h-screen flex bg-[#f7fafc] px-4">
+
+  <!-- LEFT PANEL -->
+  <div class="hidden md:flex md:w-1/2 bg-[#2952a3] flex-col items-center justify-center p-12">
+    <img src="{{ url_for('static', filename='images/school_logo.png') }}"
+         class="w-44 h-44 mb-8 rounded-full border-8 border-[#FFC72C']">
+    <h1 class="text-white text-4xl font-extrabold mb-2">Norzagaray College Library</h1>
+    <p class="text-[#FFC72C] tracking-widest uppercase mb-10">Attendance Monitoring</p>
+    <p class="text-white text-lg">{{ now.strftime('%A, %B %d, %Y') }}</p>
+    <p class="text-white text-5xl font-bold">{{ now.strftime('%I:%M %p') }}</p>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="flex w-full md:w-1/2 items-center justify-center p-12">
+    <div class="w-full max-w-lg bg-white p-10 rounded-xl shadow-xl">
+
+      <!-- TABS -->
+      <div class="flex border-b mb-6">
+        <button id="student-tab" class="flex-1 py-3 bg-[#2952a3] text-white font-bold rounded-t">Student</button>
+        <button id="guest-tab" class="flex-1 py-3 font-bold text-gray-700">Guest</button>
+      </div>
+
+      <!-- STUDENT INFO DISPLAY -->
+      <div id="student-info" class="hidden mb-4 p-3 rounded bg-green-100 text-green-900 text-center shadow-md">
+        <p id="student-name" class="font-bold text-lg"></p>
+        <p id="student-course"></p>
+      </div>
+
+      <!-- FORMS -->
+      <div class="overflow-hidden">
+        <div id="forms-wrapper" class="flex transition-transform duration-500" style="width:200%">
+
+          <!-- STUDENT FORM -->
+          <form method="POST" class="w-1/2 pr-6" id="student-form" autocomplete="off">
+            <p class="mb-6 font-semibold">Scan or Enter Student Number</p>
+
+            <input id="student_number" name="student_number" placeholder="Student Number"
+                   autocomplete="off"
+                   class="w-full border border-gray-300 rounded-lg shadow-sm py-3 px-3 text-lg outline-none focus:ring-2 focus:ring-[#2952a3]/50 focus:border-[#2952a3]"/>
+
+            <select id="reason" name="reason"
+                    class="w-full border border-gray-300 rounded-lg shadow-sm py-3 px-3 mt-6 text-lg outline-none focus:ring-2 focus:ring-[#2952a3]/50 focus:border-[#2952a3]">
+              <option value="" disabled selected>Select reason</option>
+              <option value="Study">Study</option>
+              <option value="Borrow">Borrow Book</option>
+              <option value="Return">Return Book</option>
+              <option value="Other">Other</option>
+            </select>
+
+            <input id="other_reason" name="other_reason" placeholder="Enter reason"
+                   class="w-full border border-gray-300 rounded-lg shadow-sm py-3 px-3 mt-6 text-lg outline-none hidden focus:ring-2 focus:ring-[#2952a3]/50 focus:border-[#2952a3]"/>
+
+            <button class="w-full mt-8 bg-[#2952a3] text-white py-3 rounded-lg font-bold shadow hover:shadow-md transition">Submit</button>
+          </form>
+
+          <!-- GUEST FORM -->
+          <form method="POST" class="w-1/2 pl-6" autocomplete="off">
+            <p class="mb-6 font-semibold">Guest Information</p>
+
+            <input name="fullname" placeholder="Full Name"
+                   autocomplete="off"
+                   class="w-full border border-gray-300 rounded-lg shadow-sm py-3 px-3 text-lg outline-none focus:ring-2 focus:ring-[#2952a3]/50 focus:border-[#2952a3]"/>
+            <input name="designation" placeholder="Designation"
+                   autocomplete="off"
+                   class="w-full border border-gray-300 rounded-lg shadow-sm py-3 px-3 mt-6 text-lg outline-none focus:ring-2 focus:ring-[#2952a3]/50 focus:border-[#2952a3]"/>
+            <input name="reason" placeholder="Reason"
+                   autocomplete="off"
+                   class="w-full border border-gray-300 rounded-lg shadow-sm py-3 px-3 mt-6 text-lg outline-none focus:ring-2 focus:ring-[#2952a3]/50 focus:border-[#2952a3]"/>
+
+            <button class="w-full mt-8 bg-[#2952a3] text-white py-3 rounded-lg font-bold shadow hover:shadow-md transition">Submit</button>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<script>
+Swal.fire({ icon:'success', title:'Success', text:'{{ messages[0][1] }}' });
+</script>
+{% endif %}
+{% endwith %}
+
+<script>
+const studentTab = document.getElementById("student-tab");
+const guestTab = document.getElementById("guest-tab");
+const forms = document.getElementById("forms-wrapper");
+studentTab.onclick = () => forms.style.transform="translateX(0)";
+guestTab.onclick = () => forms.style.transform="translateX(-50%)";
+</script>
+
+<!-- KIOSK QR + Manual Entry -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const studentInput = document.getElementById("student_number");
+  const reasonSelect = document.getElementById("reason");
+  const otherReason = document.getElementById("other_reason");
+  const infoBox = document.getElementById("student-info");
+  const nameBox = document.getElementById("student-name");
+  const courseBox = document.getElementById("student-course");
+
+  let scanTimer = null;
+
+  // Force focus for scanner
+  setInterval(()=>studentInput.focus(),300);
+
+  // Show/hide "Other" input
+  reasonSelect.addEventListener("change", e => {
+    otherReason.classList.toggle("hidden", e.target.value !== "Other");
+  });
+
+  // Detect QR scan or manual entry
+  studentInput.addEventListener("input", () => {
+    clearTimeout(scanTimer);
+    scanTimer = setTimeout(() => {
+      const value = studentInput.value.trim();
+      if (value.length < 3) return;
+
+      fetch("/logs/entry-log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ student_number: value })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if(data.status==="ok"){
+          nameBox.textContent = data.name;
+          courseBox.textContent = data.course;
+          infoBox.classList.remove("hidden");
+
+          setTimeout(()=>{
+            infoBox.classList.add("hidden");
+            studentInput.value="";
+            otherReason.value="";
+            reasonSelect.value="";
+            studentInput.focus();
+          },2500);
+        } else {
+          Swal.fire({icon:"error",title:"Student not found",timer:1500,showConfirmButton:false});
+          studentInput.value="";
+        }
+      });
+    },120);
+  });
+});
+</script>
+{% endblock %}
+ 

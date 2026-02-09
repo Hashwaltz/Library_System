@@ -10,7 +10,7 @@ from . import admin_bp
 # LIST ALL BOOKS
 # -----------------------------
 @admin_bp.route('/books')
-@role_required("Admin")
+@role_required("admin")
 def list_books():
     page = request.args.get('page', 1, type=int)
     per_page = 10  # number of books per page
@@ -31,7 +31,7 @@ def list_books():
 # ADD NEW BOOK
 # -----------------------------
 @admin_bp.route('/books/add', methods=['POST'])
-@role_required("Admin")
+@role_required("admin")
 def add_book():
     if request.method == 'POST':
         title = request.form['title']
@@ -89,7 +89,7 @@ def add_book():
 # EDIT BOOK
 # -----------------------------
 @admin_bp.route('/books/edit/<int:book_id>', methods=['POST'])
-@role_required("Admin")
+@role_required("admin")
 def edit_book(book_id):
     book = Book.query.get_or_404(book_id)
 
@@ -147,7 +147,7 @@ def edit_book(book_id):
 # DELETE BOOK
 # -----------------------------
 @admin_bp.route('/books/delete/<int:book_id>', methods=['POST'])
-@role_required("Admin")
+@role_required("admin")
 def delete_book(book_id):
     book = Book.query.get_or_404(book_id)
 
@@ -177,7 +177,7 @@ def delete_book(book_id):
 # ARCHIVED BOOKS PAGE
 # -----------------------------
 @admin_bp.route('/books/archived')
-@role_required("Admin")
+@role_required("admin")
 def archived_books():
     page = request.args.get('page', 1, type=int)
     books_query = Book.query.filter_by(is_archived=True).order_by(Book.id.desc())
@@ -193,7 +193,7 @@ def archived_books():
 # RESTORE BOOK
 # -----------------------------
 @admin_bp.route('/books/restore/<int:book_id>', methods=['POST'])
-@role_required("Admin")
+@role_required("admin")
 def restore_book(book_id):
     book = Book.query.get_or_404(book_id)
 

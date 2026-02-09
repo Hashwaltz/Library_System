@@ -11,14 +11,14 @@ from . import admin_bp
 
 
 @admin_bp.route("/manage_librarians")
-@role_required("Admin")
+@role_required("admin")
 def manage_librarians():
     librarians = User.query.order_by(User.username.asc()).all()
     return render_template("admin/librarians.html", users=librarians)
 
 
 @admin_bp.route("/add_librarian", methods=["POST"])
-@role_required("Admin")
+@role_required("admin")
 def add_librarian():
     username = request.form.get("username")
     email = request.form.get("email")
@@ -62,7 +62,7 @@ def add_librarian():
 
 
 @admin_bp.route("/edit_librarian/<int:user_id>", methods=["POST"])
-@role_required("Admin")
+@role_required("admin")
 def edit_librarian(user_id):
     librarian = User.query.get_or_404(user_id)
 

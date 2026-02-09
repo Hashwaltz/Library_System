@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template
 from app.utils.decorators import role_required
 from app.models.entry_log import EntryLog
-from app.models.student import Student
+from app.models.student import Student, StudentCourse
 from app.models.borrowers import Borrower, Guest
 from app.models.user import User
 from app.extensions import db
@@ -9,12 +9,10 @@ from app.models.book import Book
 from app.models.borrow import Borrow
 from sqlalchemy import func
 
-
-
 from . import admin_bp
 
 @admin_bp.route("/dashboard")
-@role_required("Admin")
+@role_required("admin")
 def dashboard():
     # -------------------
     # Metrics
@@ -22,6 +20,8 @@ def dashboard():
     total_users = Student.query.count() + Borrower.query.count() + Guest.query.count()
     total_books = Book.query.count()
     total_borrowed = Borrow.query.count()
+    
+    # Make sure Borrower has `is_active` column in DB
     active_members = Student.query.filter_by(status='ACTIVE').count() + Borrower.query.filter_by(is_active=True).count()
 
     # -------------------
@@ -29,27 +29,34 @@ def dashboard():
     # -------------------
     monthly_borrowed = []
     for month in range(1, 13):
-        # SQLite uses strftime for extracting month
         count = Borrow.query.filter(func.strftime('%m', Borrow.borrowed_at) == f"{month:02d}").count()
         monthly_borrowed.append(count)
 
     # -------------------
-    # Book Status Distribution
+    # Book Status Distribution by Student Courses
     # -------------------
-    # Count by student courses
-    bscs_count = Borrow.query.join(Student, Borrow.student_id == Student.id)\
-                    .filter(Student.course == 'BSCS').count()
-    beed_count = Borrow.query.join(Student, Borrow.student_id == Student.id)\
-                    .filter(Student.course == 'BEED').count()
-    bshm_count = Borrow.query.join(Student, Borrow.student_id == Student.id)\
-                    .filter(Student.course == 'BSHM').count()
-    bsed_count = Borrow.query.join(Student, Borrow.student_id == Student.id)\
-                    .filter(Student.course == 'BSED').count()
+    # Get all courses dynamically
+    courses = StudentCourse.query.all()
+    book_status_counts = []
+
+    for course in courses:
+        count = Borrow.query.join(Student, Borrow.student_id == Student.id)\
+                    .filter(Student.course_id == course.id)\
+                    .count()
+        book_status_counts.append({
+            "course": course.abbreviation,
+            "count": count
+        })
+
+    # Alumni students
     alumni_count = Borrow.query.join(Student, Borrow.student_id == Student.id)\
                     .filter(Student.status == 'ALUMNI').count()
+    # Faculty / Staff Borrowers
     faculty_count = Borrow.query.join(Borrower, Borrow.borrower_id == Borrower.id).count()
 
-    book_status_counts = [bscs_count, beed_count, bshm_count, bsed_count, alumni_count, faculty_count]
+    # Add alumni and faculty at the end
+    book_status_counts.append({"course": "ALUMNI", "count": alumni_count})
+    book_status_counts.append({"course": "FACULTY/STAFF", "count": faculty_count})
 
     # -------------------
     # Top Borrowed Books
@@ -82,7 +89,10 @@ def dashboard():
     )
 
 
-@admin_bp.route("/borrowers")
-@role_required("Admin")
-def borrowers():
+
+
+
+@admin_bp.route("/manage_borrowers")
+@role_required("admin")
+def manage_borrowers():
     return render_template("admin/borrowers.html")

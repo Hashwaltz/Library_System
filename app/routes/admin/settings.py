@@ -7,7 +7,7 @@ from app.utils.decorators import role_required
 from . import admin_bp
 
 @admin_bp.route("/settings")
-@role_required("Admin")
+@role_required("admin")
 def settings():
     Sections = Section.query.order_by(Section.name.asc()).all()
     SubjectTypes = SubjectType.query.order_by(SubjectType.name.asc()).all()
@@ -23,7 +23,7 @@ def settings():
 
 
 @admin_bp.route("/settings/add_section", methods=["POST"])
-@role_required("Admin")
+@role_required("admin")
 def add_section():
     name = request.form.get("name").capitalize()
     if not name:
@@ -42,7 +42,7 @@ def add_section():
 
 
 @admin_bp.route("/settings/add_subject_type", methods=["POST"])
-@role_required("Admin")
+@role_required("admin")
 def add_subject_type():
     name = request.form.get("name").capitalize()
     if not name:
@@ -62,7 +62,7 @@ def add_subject_type():
 
 
 @admin_bp.route("/settings/add_edition", methods=["POST"])
-@role_required("Admin")
+@role_required("admin")
 def add_edition():
     name = request.form.get("name").capitalize()
     if not name:
@@ -81,7 +81,7 @@ def add_edition():
 
 
 @admin_bp.route("/settings/add_student_course", methods=["POST"])
-@role_required("Admin")
+@role_required("admin")
 def add_student_course():
     name = request.form.get("name").capitalize()
     abbreviation = request.form.get("abbreviation").upper()
@@ -99,7 +99,7 @@ def add_student_course():
 
 
 @admin_bp.route("/settings/add_classification", methods=["POST"])
-@role_required("Admin")
+@role_required("admin")
 def add_classification():
     name=request.form.get("name").capitalize()
     if not name:
