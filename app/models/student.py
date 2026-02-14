@@ -24,11 +24,7 @@ class Student(db.Model):
         back_populates='student',
         lazy=True
     )
-    course_rel = db.relationship(
-        'StudentCourse',
-        back_populates='students',  # match this in StudentCourse
-        lazy=True
-    )
+    course = db.relationship("StudentCourse", back_populates="students")
     def __repr__(self):
         return f'<User {self.username}>'
     
@@ -39,11 +35,7 @@ class StudentCourse(db.Model):
     name = db.Column(db.String(100), unique=True, nullable=False)
 
     
-    students = db.relationship(
-        'Student',
-        back_populates='course_rel',  # match the attribute in Student
-        lazy=True
-    )
+    students = db.relationship("Student", back_populates="course")
 
     def __repr__(self):
         return f'<StudentCourse {self.name}>'

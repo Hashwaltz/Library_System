@@ -24,134 +24,194 @@
         <button id="guest-tab" class="flex-1 py-3 font-bold text-gray-700">Guest</button>
       </div>
 
-      <!-- STUDENT INFO DISPLAY -->
+      <!-- STUDENT INFO -->
       <div id="student-info" class="hidden mb-4 p-3 rounded bg-green-100 text-green-900 text-center shadow-md">
         <p id="student-name" class="font-bold text-lg"></p>
         <p id="student-course"></p>
       </div>
 
-      <!-- FORMS -->
       <div class="overflow-hidden">
         <div id="forms-wrapper" class="flex transition-transform duration-500" style="width:200%">
 
           <!-- STUDENT FORM -->
           <form method="POST" class="w-1/2 pr-6" id="student-form" autocomplete="off">
+
             <p class="mb-6 font-semibold">Scan or Enter Student Number</p>
 
-            <input id="student_number" name="student_number" placeholder="Student Number"
-                   autocomplete="off"
-                   class="w-full border border-gray-300 rounded-lg shadow-sm py-3 px-3 text-lg outline-none focus:ring-2 focus:ring-[#2952a3]/50 focus:border-[#2952a3]"/>
+            <input id="student_number" name="student_number"
+              class="w-full border rounded-lg py-3 px-3 text-lg"
+              placeholder="Student Number"/>
 
             <select id="reason" name="reason"
-                    class="w-full border border-gray-300 rounded-lg shadow-sm py-3 px-3 mt-6 text-lg outline-none focus:ring-2 focus:ring-[#2952a3]/50 focus:border-[#2952a3]">
+              class="w-full border rounded-lg py-3 px-3 mt-6 text-lg">
               <option value="" disabled selected>Select reason</option>
-              <option value="Study">Study</option>
-              <option value="Borrow">Borrow Book</option>
-              <option value="Return">Return Book</option>
+              <option value="Borrow Books">Read/ Borrow Book/s</option>
+              <option value="Return Books">Read/ Journal/s or Magazine/s</option>
+              <option value="Borrow Thesis or Research">Read / Borrow Thesis or Research Work/s</option>
+              <option value="Study or Need of Learning Space">Study/ Need of Learning Space</option>
+              <option value="use of Computer">Use of Computer</option>
+              <option value="Consultation">Consultation</option>
+              <option value="Review for BLEPT">Review for BLEPT</option>
+              <option value="Apply Library ID or Card">Apply Library ID or Card</option>
+              <option value="Claim Library ID or Card">Claim Library ID or Card</option>
+              <option value="Request for Referral Letter">Request for Referral Letter</option>
+              <option value="Signing of Clearance">Signing of Clearance</option>
               <option value="Other">Other</option>
             </select>
 
-            <input id="other_reason" name="other_reason" placeholder="Enter reason"
-                   class="w-full border border-gray-300 rounded-lg shadow-sm py-3 px-3 mt-6 text-lg outline-none hidden focus:ring-2 focus:ring-[#2952a3]/50 focus:border-[#2952a3]"/>
+            <input id="other_reason" name="other_reason"
+              placeholder="Enter reason"
+              class="hidden w-full border rounded-lg py-3 px-3 mt-6"/>
 
-            <button class="w-full mt-8 bg-[#2952a3] text-white py-3 rounded-lg font-bold shadow hover:shadow-md transition">Submit</button>
+            <button type="submit" class="w-full mt-8 bg-[#2952a3] text-white py-3 rounded-lg font-bold">
+              Submit
+            </button>
+
           </form>
 
           <!-- GUEST FORM -->
-          <form method="POST" class="w-1/2 pl-6" autocomplete="off">
-            <p class="mb-6 font-semibold">Guest Information</p>
+          <form method="POST" class="w-1/2 pl-6">
 
             <input name="fullname" placeholder="Full Name"
-                   autocomplete="off"
-                   class="w-full border border-gray-300 rounded-lg shadow-sm py-3 px-3 text-lg outline-none focus:ring-2 focus:ring-[#2952a3]/50 focus:border-[#2952a3]"/>
-            <input name="designation" placeholder="Designation"
-                   autocomplete="off"
-                   class="w-full border border-gray-300 rounded-lg shadow-sm py-3 px-3 mt-6 text-lg outline-none focus:ring-2 focus:ring-[#2952a3]/50 focus:border-[#2952a3]"/>
-            <input name="reason" placeholder="Reason"
-                   autocomplete="off"
-                   class="w-full border border-gray-300 rounded-lg shadow-sm py-3 px-3 mt-6 text-lg outline-none focus:ring-2 focus:ring-[#2952a3]/50 focus:border-[#2952a3]"/>
+              class="w-full border rounded-lg py-3 px-3"/>
 
-            <button class="w-full mt-8 bg-[#2952a3] text-white py-3 rounded-lg font-bold shadow hover:shadow-md transition">Submit</button>
+            <input name="designation" placeholder="Designation"
+              class="w-full border rounded-lg py-3 px-3 mt-6"/>
+
+            <input name="reason" placeholder="Reason"
+              class="w-full border rounded-lg py-3 px-3 mt-6"/>
+
+            <button class="w-full mt-8 bg-[#2952a3] text-white py-3 rounded-lg font-bold">
+              Submit
+            </button>
+
           </form>
 
         </div>
       </div>
+
     </div>
   </div>
 </section>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-{% if messages %}
-<script>
-Swal.fire({ icon:'success', title:'Success', text:'{{ messages[0][1] }}' });
-</script>
-{% endif %}
-{% endwith %}
-
 <script>
 const studentTab = document.getElementById("student-tab");
 const guestTab = document.getElementById("guest-tab");
 const forms = document.getElementById("forms-wrapper");
-studentTab.onclick = () => forms.style.transform="translateX(0)";
-guestTab.onclick = () => forms.style.transform="translateX(-50%)";
+studentTab.onclick = () => forms.style.transform = "translateX(0)";
+guestTab.onclick = () => forms.style.transform = "translateX(-50%)";
 </script>
 
-<!-- KIOSK QR + Manual Entry -->
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const studentInput = document.getElementById("student_number");
-  const reasonSelect = document.getElementById("reason");
-  const otherReason = document.getElementById("other_reason");
-  const infoBox = document.getElementById("student-info");
-  const nameBox = document.getElementById("student-name");
-  const courseBox = document.getElementById("student-course");
+document.addEventListener("DOMContentLoaded", ()=>{
 
-  let scanTimer = null;
+const studentInput = document.getElementById("student_number");
+const reason = document.getElementById("reason");
+const other = document.getElementById("other_reason");
+const info = document.getElementById("student-info");
+const nameEl = document.getElementById("student-name");
+const courseEl = document.getElementById("student-course");
+const form = document.getElementById("student-form");
 
-  // Force focus for scanner
-  setInterval(()=>studentInput.focus(),300);
+let liveTimer = null;
+let resetTimer = null;
 
-  // Show/hide "Other" input
-  reasonSelect.addEventListener("change", e => {
-    otherReason.classList.toggle("hidden", e.target.value !== "Other");
-  });
+/* Autofocus once on page load */
+studentInput.focus();
 
-  // Detect QR scan or manual entry
-  studentInput.addEventListener("input", () => {
-    clearTimeout(scanTimer);
-    scanTimer = setTimeout(() => {
-      const value = studentInput.value.trim();
-      if (value.length < 3) return;
+/* Show/hide Other reason input */
+reason.addEventListener("change", e=>{
+  const isOther = e.target.value === "Other";
+  other.classList.toggle("hidden", !isOther);
+  if(isOther) other.focus();
+  if(nameEl.textContent) info.classList.remove("hidden");
+});
 
-      fetch("/logs/entry-log", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ student_number: value })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if(data.status==="ok"){
-          nameBox.textContent = data.name;
-          courseBox.textContent = data.course;
-          infoBox.classList.remove("hidden");
+/* ================= AJAX LIVE LOOKUP ================= */
+studentInput.addEventListener("input", ()=>{
+  clearTimeout(liveTimer);
+  liveTimer = setTimeout(()=>{
+    const v = studentInput.value.trim();
+    if(v.length < 3) return;
 
-          setTimeout(()=>{
-            infoBox.classList.add("hidden");
-            studentInput.value="";
-            otherReason.value="";
-            reasonSelect.value="";
-            studentInput.focus();
-          },2500);
-        } else {
-          Swal.fire({icon:"error",title:"Student not found",timer:1500,showConfirmButton:false});
-          studentInput.value="";
-        }
-      });
-    },120);
+    fetch("/logs/entry-log", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({student_number: v})
+    })
+    .then(r=>r.json())
+    .then(d=>{
+      if(d.status === "ok"){
+        nameEl.textContent = d.name;
+        courseEl.textContent = d.course;
+        info.classList.remove("hidden");
+
+        clearTimeout(resetTimer);
+        resetTimer = setTimeout(()=>{
+          studentInput.value = "";
+          reason.value = "";
+          other.value = "";
+          info.classList.add("hidden");
+          studentInput.focus();
+        }, 10000);
+      } else if(d.status === "error"){
+        info.classList.add("hidden");
+      }
+    });
+  }, 150);
+});
+
+/* ================= MANUAL SUBMISSION ================= */
+form.addEventListener("submit", e=>{
+  e.preventDefault();
+
+  const studentNumber = studentInput.value.trim();
+  const reasonVal = reason.value;
+  const otherVal = other.value;
+
+  if(!studentNumber){
+    Swal.fire({icon:"error", title:"Enter Student Number"});
+    return;
+  }
+
+  fetch("/logs/entry-log", {
+    method: "POST",
+    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+    body: new URLSearchParams({
+      student_number: studentNumber,
+      reason: reasonVal,
+      other_reason: otherVal
+    })
+  })
+  .then(r=>r.json())
+  .then(d=>{
+    Swal.fire({
+      icon: d.status==='success'?'success':(d.status==='warning'?'warning':'error'),
+      title: d.status.charAt(0).toUpperCase() + d.status.slice(1),
+      text: d.message
+    });
+
+    if(d.status === "success"){
+      // Show info box for successful log
+      nameEl.textContent = studentNumber;
+      courseEl.textContent = reasonVal || otherVal;
+      info.classList.remove("hidden");
+
+      // Reset fields after 10s
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(()=>{
+        studentInput.value = "";
+        reason.value = "";
+        other.value = "";
+        info.classList.add("hidden");
+        studentInput.focus();
+      }, 10000);
+    }
   });
 });
+});
 </script>
+
 {% endblock %}
- 
