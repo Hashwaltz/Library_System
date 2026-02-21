@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from app.utils.decorators import role_required
 from app.extensions import db
-from app.models.book import Book, Section, SubjectType, Edition
+from app.models.book import Book, Section, SubjectType, Edition, Classification
 from app.utils.helpers import log_audit
 
 from . import admin_bp
@@ -18,6 +18,7 @@ def list_books():
     pagination = Book.query.filter_by(is_archived=False).order_by(Book.title.asc()).paginate(page=page, per_page=per_page)
     books = pagination.items
     sections = Section.query.all()
+    classification = Classification.query.all()
     subject_types = SubjectType.query.all()
     editions = Edition.query.all()
     return render_template('admin/books.html', 
@@ -25,7 +26,8 @@ def list_books():
                            sections=sections,
                            subject_types=subject_types,
                            editions=editions,
-                           pagination=pagination)
+                           pagination=pagination,
+                           classification=classification)
 
 # -----------------------------
 # ADD NEW BOOK

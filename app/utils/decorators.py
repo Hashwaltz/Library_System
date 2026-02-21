@@ -6,8 +6,8 @@ def role_required(*allowed_roles):
     Restrict access to users with specified roles.
     Usage:
         @role_required('admin')
-        @role_required('librarian')
-        @role_required('admin', 'librarian')
+        @role_required('Librarian')
+        @role_required('admin', 'Librarian')
     """
     def decorator(f):
         @wraps(f)

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Librarian Dashboard{% endblock %}</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Font Awesome -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background-color: #065f46;
+        border-radius: 3px;
+      }
+    </style>
+  </head>
+
+  <body class="bg-gray-100 flex min-h-screen font-sans">
+    <!-- Sidebar -->
+    <aside
+      class="w-64 bg-gradient-to-b from-emerald-700 to-emerald-900 text-white flex flex-col shadow-lg rounded-r-xl"
+    >
+      <!-- Header -->
+      <div
+        class="px-6 py-6 text-center font-extrabold text-2xl border-b border-emerald-800"
+      >
+        NC Librarian Panel
+      </div>
+
+      <!-- Navigation -->
+      <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+        {% set current_route = request.endpoint %}
+
+        <!-- Dashboard -->
+        <a
+          href="{{ url_for('librarian.dashboard') }}"
+          class="flex items-center gap-3 py-3 px-4 rounded-lg transition duration-300 {% if current_route == 'librarian.dashboard' %}bg-emerald-800 shadow-md{% else %}hover:bg-emerald-600{% endif %}"
+        >
+          <div class="bg-white/20 p-2 rounded-full">
+            <i class="fas fa-tachometer-alt"></i>
+          </div>
+          <span>Dashboard</span>
+        </a>
+
+        <!-- Manage Borrowers -->
+        <a
+          href="#"
+          class="flex items-center gap-3 py-3 px-4 rounded-lg transition duration-300 {% if current_route == 'librarian.manage_borrowers' %}bg-emerald-800 shadow-md{% else %}hover:bg-emerald-600{% endif %}"
+        >
+          <div class="bg-white/20 p-2 rounded-full">
+            <i class="fas fa-users"></i>
+          </div>
+          <span>Borrowers</span>
+        </a>
+
+        <!-- Borrow / Return Books -->
+        <a
+          href="#"
+          class="flex items-center gap-3 py-3 px-4 rounded-lg transition duration-300 {% if current_route == 'librarian.borrow_books' %}bg-emerald-800 shadow-md{% else %}hover:bg-emerald-600{% endif %}"
+        >
+          <div class="bg-white/20 p-2 rounded-full">
+            <i class="fas fa-book-reader"></i>
+          </div>
+          <span>Borrow / Return</span>
+        </a>
+
+        <!-- Attendance Logs -->
+        <a
+          href="#"
+          class="flex items-center gap-3 py-3 px-4 rounded-lg transition duration-300 {% if current_route == 'librarian.view_logs' %}bg-emerald-800 shadow-md{% else %}hover:bg-emerald-600{% endif %}"
+        >
+          <div class="bg-white/20 p-2 rounded-full">
+            <i class="fas fa-calendar-check"></i>
+          </div>
+          <span>Attendance Logs</span>
+        </a>
+
+        <!-- Reports -->
+        <a
+          href="#"
+          class="flex items-center gap-3 py-3 px-4 rounded-lg transition duration-300 {% if current_route == 'librarian.reports' %}bg-emerald-800 shadow-md{% else %}hover:bg-emerald-600{% endif %}"
+        >
+          <div class="bg-white/20 p-2 rounded-full">
+            <i class="fas fa-chart-bar"></i>
+          </div>
+          <span>Reports</span>
+        </a>
+
+        <!-- Profile -->
+        <a
+          href="#"
+          class="flex items-center gap-3 py-3 px-4 rounded-lg transition duration-300 {% if current_route == 'librarian.profile' %}bg-emerald-800 shadow-md{% else %}hover:bg-emerald-600{% endif %}"
+        >
+          <div class="bg-white/20 p-2 rounded-full">
+            <i class="fas fa-user-circle"></i>
+          </div>
+          <span>Profile</span>
+        </a>
+
+        <!-- Logout -->
+        <a
+          href="{{ url_for('auth.logout') }}"
+          class="flex items-center gap-3 py-3 px-4 rounded-lg transition duration-300 hover:bg-red-600"
+        >
+          <div class="bg-white/20 p-2 rounded-full">
+            <i class="fas fa-sign-out-alt"></i>
+          </div>
+          <span>Logout</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8">
+      <!-- Header -->
+      <div
+        class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4"
+      >
+        <h1 class="text-4xl font-extrabold text-emerald-700">
+          {% block header %}Dashboard{% endblock %}
+        </h1>
+
+        <div class="flex items-center gap-2">
+          <p class="text-gray-700 font-medium">Welcome,</p>
+          <span class="font-bold text-emerald-700">
+            {{ session.username }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Page Content -->
+      <div class="bg-white shadow-md rounded-lg p-6">
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <script>
+      const flashMessages = [
+        {% for category, message in messages %}
+        {
+          icon: "{{ category }}",
+          title: "{{ 'Error' if category == 'error' else 'Notice' }}",
+          text: "{{ message }}",
+          confirmButtonColor: "#047857"
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ];
+      flashMessages.forEach(msg => Swal.fire(msg));
+    </script>
+    {% endif %}
+    {% endwith %}
+
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

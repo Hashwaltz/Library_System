@@ -1,7 +1,5 @@
-{% extends "admin/admin_base.html" %}
-{% block title %}Library Settings{% endblock %}
-{% block header %}Settings{% endblock %}
-{% block content %}
+{% extends "admin/admin_base.html" %} {% block title %}Admin - Settings{%
+endblock %} {% block header %}Settings{% endblock %} {% block content %}
 <div class="space-y-8">
   <!-- Page Header -->
   <div class="flex justify-between items-center">
@@ -10,23 +8,51 @@
 
   <!-- SETTINGS GRID -->
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-
     <!-- COURSE -->
-    <div class="bg-white rounded-xl shadow border-t-4 border-yellow-600 p-6 flex flex-col">
-      <h2 class="text-xl font-semibold text-yellow-700 mb-4 flex items-center gap-2">
+    <div
+      class="bg-white rounded-xl shadow border-t-4 border-yellow-600 p-6 flex flex-col"
+    >
+      <h2
+        class="text-xl font-semibold text-yellow-700 mb-4 flex items-center gap-2"
+      >
         <i class="fas fa-graduation-cap"></i> Courses
       </h2>
 
-      <form method="POST" action="{{ url_for('admin.add_student_course') }}" class="flex gap-2 mb-4">
-        <input type="text" name="name" placeholder="New course" class="flex-1 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500" required />
-        <input type="text" name="abbreviation" placeholder="Abbreviation" class="w-24 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500" required />
-        <button type="submit" class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition">Add</button>
+      <form
+        method="POST"
+        action="{{ url_for('admin.add_student_course') }}"
+        class="flex gap-2 mb-4"
+      >
+        <input
+          type="text"
+          name="name"
+          placeholder="New course"
+          class="flex-1 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500"
+          required
+        />
+        <input
+          type="text"
+          name="abbreviation"
+          placeholder="Abbreviation"
+          class="w-24 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500"
+          required
+        />
+        <button
+          type="submit"
+          class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition"
+        >
+          Add
+        </button>
       </form>
 
       <ul class="space-y-2 flex-1">
         {% for course in student_courses %}
-        <li class="flex justify-between items-center bg-yellow-50 text-yellow-800 px-3 py-2 rounded-lg border border-yellow-200">
-          <span class="font-medium">{{ course.name }} ({{ course.abbreviation }})</span>
+        <li
+          class="flex justify-between items-center bg-yellow-50 text-yellow-800 px-3 py-2 rounded-lg border border-yellow-200"
+        >
+          <span class="font-medium"
+            >{{ course.name }} ({{ course.abbreviation }})</span
+          >
         </li>
         {% else %}
         <p class="text-gray-500 text-sm">No courses yet</p>
@@ -35,19 +61,40 @@
     </div>
 
     <!-- SECTION -->
-    <div class="bg-white rounded-xl shadow border-t-4 border-blue-600 p-6 flex flex-col">
-      <h2 class="text-xl font-semibold text-blue-700 mb-4 flex items-center gap-2">
+    <div
+      class="bg-white rounded-xl shadow border-t-4 border-blue-600 p-6 flex flex-col"
+    >
+      <h2
+        class="text-xl font-semibold text-blue-700 mb-4 flex items-center gap-2"
+      >
         <i class="fas fa-layer-group"></i> Sections
       </h2>
 
-      <form method="POST" action="{{ url_for('admin.add_section') }}" class="flex gap-2 mb-4">
-        <input type="text" name="name" placeholder="New section" class="flex-1 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500" required />
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Add</button>
+      <form
+        method="POST"
+        action="{{ url_for('admin.add_section') }}"
+        class="flex gap-2 mb-4"
+      >
+        <input
+          type="text"
+          name="name"
+          placeholder="New section"
+          class="flex-1 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+          required
+        />
+        <button
+          type="submit"
+          class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+        >
+          Add
+        </button>
       </form>
 
       <ul class="space-y-2 flex-1">
         {% for section in sections %}
-        <li class="flex justify-between items-center bg-blue-50 text-blue-800 px-3 py-2 rounded-lg border border-blue-200">
+        <li
+          class="flex justify-between items-center bg-blue-50 text-blue-800 px-3 py-2 rounded-lg border border-blue-200"
+        >
           <span class="font-medium">{{ section.name }}</span>
         </li>
         {% else %}
@@ -57,19 +104,40 @@
     </div>
 
     <!-- SUBJECT TYPE -->
-    <div class="bg-white rounded-xl shadow border-t-4 border-green-600 p-6 flex flex-col">
-      <h2 class="text-xl font-semibold text-green-700 mb-4 flex items-center gap-2">
+    <div
+      class="bg-white rounded-xl shadow border-t-4 border-green-600 p-6 flex flex-col"
+    >
+      <h2
+        class="text-xl font-semibold text-green-700 mb-4 flex items-center gap-2"
+      >
         <i class="fas fa-book"></i> Subject Types
       </h2>
 
-      <form method="POST" action="{{ url_for('admin.add_subject_type') }}" class="flex gap-2 mb-4">
-        <input type="text" name="name" placeholder="New subject" class="flex-1 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500" required />
-        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">Add</button>
+      <form
+        method="POST"
+        action="{{ url_for('admin.add_subject_type') }}"
+        class="flex gap-2 mb-4"
+      >
+        <input
+          type="text"
+          name="name"
+          placeholder="New subject"
+          class="flex-1 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500"
+          required
+        />
+        <button
+          type="submit"
+          class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
+        >
+          Add
+        </button>
       </form>
 
       <ul class="space-y-2 flex-1">
         {% for subject in subject_types %}
-        <li class="flex justify-between items-center bg-green-50 text-green-800 px-3 py-2 rounded-lg border border-green-200">
+        <li
+          class="flex justify-between items-center bg-green-50 text-green-800 px-3 py-2 rounded-lg border border-green-200"
+        >
           <span class="font-medium">{{ subject.name }}</span>
         </li>
         {% else %}
@@ -79,19 +147,40 @@
     </div>
 
     <!-- EDITION -->
-    <div class="bg-white rounded-xl shadow border-t-4 border-purple-600 p-6 flex flex-col">
-      <h2 class="text-xl font-semibold text-purple-700 mb-4 flex items-center gap-2">
+    <div
+      class="bg-white rounded-xl shadow border-t-4 border-purple-600 p-6 flex flex-col"
+    >
+      <h2
+        class="text-xl font-semibold text-purple-700 mb-4 flex items-center gap-2"
+      >
         <i class="fas fa-certificate"></i> Editions
       </h2>
 
-      <form method="POST" action="{{ url_for('admin.add_edition') }}" class="flex gap-2 mb-4">
-        <input type="text" name="name" placeholder="New edition" class="flex-1 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500" required />
-        <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">Add</button>
+      <form
+        method="POST"
+        action="{{ url_for('admin.add_edition') }}"
+        class="flex gap-2 mb-4"
+      >
+        <input
+          type="text"
+          name="name"
+          placeholder="New edition"
+          class="flex-1 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500"
+          required
+        />
+        <button
+          type="submit"
+          class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition"
+        >
+          Add
+        </button>
       </form>
 
       <ul class="space-y-2 flex-1">
         {% for edition in editions %}
-        <li class="flex justify-between items-center bg-purple-50 text-purple-800 px-3 py-2 rounded-lg border border-purple-200">
+        <li
+          class="flex justify-between items-center bg-purple-50 text-purple-800 px-3 py-2 rounded-lg border border-purple-200"
+        >
           <span class="font-medium">{{ edition.name }}</span>
         </li>
         {% else %}
@@ -101,19 +190,40 @@
     </div>
 
     <!-- CLASS (future use) -->
-    <div class="bg-white rounded-xl shadow border-t-4 border-indigo-600 p-6 flex flex-col">
-      <h2 class="text-xl font-semibold text-indigo-700 mb-4 flex items-center gap-2">
+    <div
+      class="bg-white rounded-xl shadow border-t-4 border-indigo-600 p-6 flex flex-col"
+    >
+      <h2
+        class="text-xl font-semibold text-indigo-700 mb-4 flex items-center gap-2"
+      >
         <i class="fas fa-chalkboard"></i> Classes
       </h2>
 
-      <form method="POST" action="{{ url_for('admin.add_classification') }}" class="flex gap-2 mb-4">
-        <input type="text" name="name" placeholder="New classification" class="flex-1 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500" required />
-        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg transition">Add</button>
+      <form
+        method="POST"
+        action="{{ url_for('admin.add_classification') }}"
+        class="flex gap-2 mb-4"
+      >
+        <input
+          type="text"
+          name="name"
+          placeholder="New classification"
+          class="flex-1 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500"
+          required
+        />
+        <button
+          type="submit"
+          class="bg-indigo-600 text-white px-4 py-2 rounded-lg transition"
+        >
+          Add
+        </button>
       </form>
 
-      <ul class="space-y-2 flex-1"> 
+      <ul class="space-y-2 flex-1">
         {% for classification in classifications %}
-        <li class="flex justify-between items-center bg-indigo-50 text-indigo-800 px-3 py-2 rounded-lg border border-indigo-200">
+        <li
+          class="flex justify-between items-center bg-indigo-50 text-indigo-800 px-3 py-2 rounded-lg border border-indigo-200"
+        >
           <span class="font-medium">{{ classification.name }}</span>
         </li>
         {% else %}
@@ -122,22 +232,81 @@
       </ul>
     </div>
 
-    <!-- OTHER (future use) -->
-    <div class="bg-white rounded-xl shadow border-t-4 border-gray-600 p-6 flex flex-col">
-      <h2 class="text-xl font-semibold text-gray-700 mb-4 flex items-center gap-2">
-        <i class="fas fa-ellipsis-h"></i> Other
+    <!-- TIME LOG PIN -->
+    <div
+      class="bg-white rounded-xl shadow border-t-4 border-gray-600 p-6 flex flex-col"
+    >
+      <h2
+        class="text-xl font-semibold text-gray-700 mb-4 flex items-center gap-2"
+      >
+        <i class="fas fa-key"></i> Time Log PIN
       </h2>
 
-      <form method="POST" action="#" class="flex gap-2 mb-4">
-        <input type="text" name="name" placeholder="New item" class="flex-1 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-500" disabled />
-        <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded-lg transition" disabled>Add</button>
+      {% if time_log_pin %}
+      <!-- UPDATE PIN -->
+      <form
+        method="POST"
+        action="{{ url_for('admin.update_time_log_pin') }}"
+        class="space-y-3 mb-4"
+      >
+        <label class="block text-sm text-gray-600">Current PIN</label>
+        <input
+          type="password"
+          value="{{ time_log_pin.pin }}"
+          disabled
+          class="w-full border rounded-lg px-3 py-2 bg-gray-100"
+        />
+
+        <label class="block text-sm text-gray-600">New PIN</label>
+        <input
+          type="password"
+          name="pin"
+          placeholder="Enter new PIN"
+          maxlength="6"
+          pattern="\d*"
+          required
+          class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-500"
+        />
+
+        <button
+          type="submit"
+          class="w-full bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition"
+        >
+          Update PIN
+        </button>
       </form>
 
-      <ul class="space-y-2 flex-1">
-        <p class="text-gray-500 text-sm">No items yet</p>
-      </ul>
-    </div>
+      {% else %}
+      <!-- SET PIN -->
+      <form
+        method="POST"
+        action="#"
+        class="space-y-3 mb-4"
+      >
+        <label class="block text-sm text-gray-600">Set Time Log PIN</label>
+        <input
+          type="password"
+          name="pin"
+          placeholder="Enter PIN"
+          maxlength="6"
+          pattern="\d*"
+          required
+          class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-500"
+        />
 
+        <button
+          type="submit"
+          class="w-full bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition"
+        >
+          Save PIN
+        </button>
+      </form>
+      {% endif %}
+
+      <p class="text-xs text-gray-500">
+        ⚠ This PIN will be used for Time Log verification.
+      </p>
+    </div>
   </div>
 </div>
 {% endblock %}

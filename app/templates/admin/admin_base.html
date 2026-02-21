@@ -36,7 +36,7 @@
       <div
         class="px-6 py-6 text-center font-extrabold text-2xl border-b border-[#162d5f]"
       >
-        NC Library Admin
+        NC Library Admin Panel
       </div>
 
       <!-- Navigation -->
@@ -89,13 +89,13 @@
 
         <!-- Settings -->
         <a
-          href="#"
+          href="{{ url_for('admin.view_logs') }}"
           class="flex items-center gap-3 py-3 px-4 rounded-lg transition-colors duration-300 hover:bg-[#3B5BA8]"
         >
           <div class="bg-white/20 p-2 rounded-full">
             <i class="fas fa-calendar-check"></i>
           </div>
-          <span class="font-medium">Attendance Logs</span>
+          <span class="font-medium">Entry Logs</span>
         </a>
 
         <!-- Audit Logs -->

@@ -1,4 +1,4 @@
-{% extends "admin/admin_base.html" %} {% block title %}Book Management{%
+{% extends "admin/admin_base.html" %} {% block title %}Admin - Book Management{%
 endblock %} {% block header %}Book Management{% endblock %} {% block content %}
 <div
   class="col-span-full bg-white shadow-xl rounded-xl p-6 border-l-4 border-[#004080]"
@@ -185,6 +185,16 @@ endblock %} {% block header %}Book Management{% endblock %} {% block content %}
           required
           class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#004080]"
         />
+        <select
+          name="classification_id"
+          required
+          class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#004080]"
+        >
+          <option value="">--Select Classification--</option>
+          {% for c in classification %}
+          <option value="{{ c.id }}">{{ c.name }}</option>
+          {% endfor %}
+        </select>
         <input
           type="number"
           name="assecion_number"
