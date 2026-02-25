@@ -232,81 +232,118 @@ endblock %} {% block header %}Settings{% endblock %} {% block content %}
       </ul>
     </div>
 
-    <!-- TIME LOG PIN -->
-    <div
-      class="bg-white rounded-xl shadow border-t-4 border-gray-600 p-6 flex flex-col"
+  <!-- TIME LOG PIN -->
+  <div
+    class="bg-white rounded-xl shadow border-t-4 border-gray-600 p-6 flex flex-col"
+  >
+    <h2 class="text-xl font-semibold text-gray-700 mb-4 flex items-center gap-2">
+      <i class="fas fa-key"></i> Time Log PIN
+    </h2>
+
+    {% if time_log_pin %}
+
+    <!-- ================= UPDATE PIN ================= -->
+    <form
+      method="POST"
+      action="{{ url_for('admin.update_time_log_pin') }}"
+      class="space-y-4 mb-4"
     >
-      <h2
-        class="text-xl font-semibold text-gray-700 mb-4 flex items-center gap-2"
-      >
-        <i class="fas fa-key"></i> Time Log PIN
-      </h2>
 
-      {% if time_log_pin %}
-      <!-- UPDATE PIN -->
-      <form
-        method="POST"
-        action="{{ url_for('admin.update_time_log_pin') }}"
-        class="space-y-3 mb-4"
-      >
-        <label class="block text-sm text-gray-600">Current PIN</label>
-        <input
-          type="password"
-          value="{{ time_log_pin.pin }}"
-          disabled
-          class="w-full border rounded-lg px-3 py-2 bg-gray-100"
-        />
+      <label class="block text-sm text-gray-600">Current PIN</label>
 
-        <label class="block text-sm text-gray-600">New PIN</label>
+      <input
+        type="password"
+        value="{{ time_log_pin.pin }}"
+        disabled
+        class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-center tracking-widest"
+      />
+
+      <label class="block text-sm text-gray-600">New PIN</label>
+
+      <div class="flex justify-center gap-2 pin-container">
+        {% for i in range(4) %}
         <input
-          type="password"
-          name="pin"
-          placeholder="Enter new PIN"
-          maxlength="6"
-          pattern="\d*"
+          type="text"
+          name="pin[]"
+          maxlength="1"
+          class="pin-box w-14 h-14 text-center border rounded-lg text-xl focus:ring-2 focus:ring-gray-500"
+          inputmode="numeric"
+          pattern="[0-9]*"
           required
-          class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-500"
         />
+        {% endfor %}
+      </div>
 
-        <button
-          type="submit"
-          class="w-full bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition"
-        >
-          Update PIN
-        </button>
-      </form>
-
-      {% else %}
-      <!-- SET PIN -->
-      <form
-        method="POST"
-        action="#"
-        class="space-y-3 mb-4"
+      <button
+        type="submit"
+        class="w-full bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition"
       >
-        <label class="block text-sm text-gray-600">Set Time Log PIN</label>
+        Update PIN
+      </button>
+
+    </form>
+
+    {% else %}
+
+    <!-- ================= SET PIN ================= -->
+    <form method="POST" action="#" class="space-y-4 mb-4">
+
+      <label class="block text-sm text-gray-600">Set Time Log PIN</label>
+
+      <div class="flex justify-center gap-2 pin-container">
+        {% for i in range(4) %}
         <input
-          type="password"
-          name="pin"
-          placeholder="Enter PIN"
-          maxlength="6"
-          pattern="\d*"
+          type="text"
+          name="pin[]"
+          maxlength="1"
+          class="pin-box w-14 h-14 text-center border rounded-lg text-xl focus:ring-2 focus:ring-gray-500"
+          inputmode="numeric"
+          pattern="[0-9]*"
           required
-          class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-500"
         />
+        {% endfor %}
+      </div>
 
-        <button
-          type="submit"
-          class="w-full bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition"
-        >
-          Save PIN
-        </button>
-      </form>
-      {% endif %}
+      <button
+        type="submit"
+        class="w-full bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition"
+      >
+        Save PIN
+      </button>
 
-      <p class="text-xs text-gray-500">
-        ⚠ This PIN will be used for Time Log verification.
-      </p>
-    </div>
+    </form>
+
+    {% endif %}
+
+    <p class="text-xs text-gray-500">
+      ⚠ This PIN will be used for Time Log verification.
+    </p>
+  </div>
+
   </div>
 </div>
+<!-- ================= PIN AUTO MOVE SCRIPT ================= -->
+<script>
+document.querySelectorAll(".pin-box").forEach((box, index, boxes) => {
+
+  box.addEventListener("input", () => {
+
+    // Move to next box
+    if (box.value.length === 1 && index < boxes.length - 1) {
+      boxes[index + 1].focus();
+    }
+
+  });
+
+  box.addEventListener("keydown", (e) => {
+
+    // Backspace move backward
+    if (e.key === "Backspace" && !box.value && index > 0) {
+      boxes[index - 1].focus();
+    }
+
+  });
+
+});
+</script>
 {% endblock %}

@@ -12,3 +12,4 @@ from . import alumni
 from . import faculty 
 from . import audit_logs
 from . import entry_logs
+from . import service
