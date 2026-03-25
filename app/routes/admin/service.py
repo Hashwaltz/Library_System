@@ -7,6 +7,6 @@ from . import admin_bp
 
 
 @role_required("admin")
-@admin_bp.route()
+@admin_bp.route("/borrow-logs")
 def borrow_logs():
     return render_template("admin/logs.html")

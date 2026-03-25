@@ -68,11 +68,11 @@
         <tr class="hover:bg-gray-50">
           <td class="px-4 py-3 font-medium">
             {% if log.student %}
-              {{ log.student.first_name }} {{ log.student.last_name }}
+              {{ log.student.firstname }} {{ log.student.lastname }}
             {% elif log.borrower %}
-              {{ log.borrower.first_name }} {{ log.borrower.last_name }}
+              {{ log.borrower.firstname }} {{ log.borrower.lastname }}
             {% elif log.guest %}
-              {{ log.guest.first_name }} {{ log.guest.last_name }}
+              {{ log.guest.firstname }} {{ log.guest.lastname }}
             {% else %}
               -
             {% endif %}
