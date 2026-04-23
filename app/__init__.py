@@ -14,7 +14,12 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 def create_app(config_name="development"):
-    app = Flask(__name__, instance_relative_config=True)
+    app = Flask(
+        __name__,
+        instance_relative_config=True,
+        template_folder="templates",
+        static_folder="static"
+    )
 
     # Load config
     if config_name == "development":
