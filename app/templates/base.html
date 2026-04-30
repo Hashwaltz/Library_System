@@ -1,90 +1,276 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-gray-100">
+<html lang="en" class="h-full bg-gray-100 scroll-smooth">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="NC Library Management System - Browse, borrow, and manage books easily">
   <title>{% block title %}NC Library Management System{% endblock %}</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/image.png')}}">
+  
   <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- AOS Library for scroll animations -->
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  
+  <!-- Custom Config for Tailwind -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#003366',
+            accent: '#FFC72C',
+          },
+          animation: {
+            'slide-down': 'slideDown 0.3s ease-in-out',
+            'slide-up': 'slideUp 0.3s ease-in-out',
+          },
+          keyframes: {
+            slideDown: {
+              '0%': { maxHeight: '0', opacity: '0' },
+              '100%': { maxHeight: '500px', opacity: '1' },
+            },
+            slideUp: {
+              '0%': { maxHeight: '500px', opacity: '1' },
+              '100%': { maxHeight: '0', opacity: '0' },
+            }
+          }
+        }
+      }
+    }
+  </script>
 
   <style>
-    /* Smooth slide-down animation for mobile menu */
+    /* Mobile menu transitions */
     #mobile-menu {
       transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
       overflow: hidden;
       max-height: 0;
       opacity: 0;
     }
-
     #mobile-menu.show {
-      max-height: 500px; /* large enough for all menu items */
+      max-height: 500px;
       opacity: 1;
     }
 
-    /* Hover scale for desktop menu links */
-    .menu-link:hover {
-      transform: scale(1.05);
-      transition: transform 0.2s ease-in-out;
+    /* Hamburger to X animation */
+    .hamburger-line {
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    #menu-btn.active .hamburger-line:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+    #menu-btn.active .hamburger-line:nth-child(2) {
+      opacity: 0;
+    }
+    #menu-btn.active .hamburger-line:nth-child(3) {
+      transform: rotate(-45deg) translate(5px, -5px);
     }
 
-    /* Get Started button hover bounce */
+    /* Navbar scroll effect */
+    nav.scrolled {
+      @apply bg-primary/95 backdrop-blur-sm shadow-lg;
+      transition: all 0.3s ease;
+    }
+
+    /* Menu link hover underline effect */
+    .menu-link {
+      position: relative;
+      padding-bottom: 2px;
+    }
+    .menu-link::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #FFC72C;
+      transition: width 0.3s ease;
+    }
+    .menu-link:hover::after {
+      width: 100%;
+    }
+
+    /* CTA button pulse on load */
+    @keyframes gentlePulse {
+      0%, 100% { box-shadow: 0 4px 14px rgba(255, 199, 44, 0.4); }
+      50% { box-shadow: 0 6px 20px rgba(255, 199, 44, 0.6); }
+    }
+    .cta-btn {
+      animation: gentlePulse 2s infinite;
+    }
     .cta-btn:hover {
+      animation: none;
       transform: scale(1.05);
-      transition: transform 0.2s ease-in-out;
+      box-shadow: 0 8px 25px rgba(255, 199, 44, 0.5);
+    }
+
+    /* Dropdown animation */
+    .dropdown-menu {
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      opacity: 0;
+      transform: translateY(-10px);
+      pointer-events: none;
+    }
+    .dropdown-menu.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
     }
   </style>
 </head>
 
-<body class="h-full flex flex-col">
+<body class="h-full flex flex-col font-sans antialiased">
 
   <!-- Navigation Bar -->
-  <nav class="bg-[#003366] sticky top-0 z-50 shadow">
+  <nav id="navbar" class="bg-primary sticky top-0 z-50 shadow-md transition-all duration-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16 items-center">
+        
         <!-- Logo / Brand -->
-        <div class="flex-shrink-0">
-          <a href="/" class="text-[#FFC72C] font-bold text-xl">NC Library</a>
-        </div>
-
-        <!-- Desktop Links -->
-        <div class="hidden md:flex space-x-6 items-center">
-          <a href="/" class="menu-link text-white hover:text-[#FFC72C] font-semibold transition-colors duration-300">Home</a>
-          <a href="#" class="menu-link text-white hover:text-[#FFC72C] font-semibold transition-colors duration-300">About</a>
-          <a href="/#" class="menu-link text-white hover:text-[#FFC72C] font-semibold transition-colors duration-300">Catalog</a>
-          <a href="{{url_for('logs.entry_log')}}" class="menu-link text-white hover:text-[#FFC72C] font-semibold transition-colors duration-300">Time Logging</a>
-          <a href="/#" class="menu-link text-white hover:text-[#FFC72C] font-semibold transition-colors duration-300">Contact</a>
-
-          <!-- CTA Button -->
-          <a href="{{ url_for('public.getting_started') }}"
-            class="cta-btn ml-4 bg-[#FFC72C] hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded shadow transition-colors duration-300">
-            Get Started
+        <div class="flex-shrink-0 flex items-center gap-2">
+          <a href="/" class="flex items-center gap-2 group">
+            <!-- Optional Logo Icon -->
+            <div class="w-8 h-8 bg-accent rounded-lg flex items-center justify-center transform group-hover:rotate-12 transition-transform">
+              <svg class="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
+              </svg>
+            </div>
+            <span class="text-accent font-bold text-xl tracking-tight">NC LIBRDA</span>
           </a>
         </div>
 
+        <!-- Desktop Navigation -->
+        <div class="hidden md:flex items-center space-x-1">
+          <a href="/" class="menu-link text-white hover:text-accent font-medium px-3 py-2 transition-colors">Home</a>
+          <a href="{{ url_for('public.about') }}" class="menu-link text-white hover:text-accent font-medium px-3 py-2 transition-colors">About</a>
+          
+          <!-- Catalog Dropdown -->
+          <div class="relative group" x-data="{ open: false }">
+            <button class="menu-link text-white hover:text-accent font-medium px-3 py-2 transition-colors flex items-center gap-1">
+              Catalog
+              <svg class="w-4 h-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            <div class="dropdown-menu absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 border border-gray-100">
+              <a href="/catalog" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">All Books</a>
+              <a href="/catalog?category=fiction" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">Fiction</a>
+              <a href="/catalog?category=non-fiction" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">Non-Fiction</a>
+              <a href="/catalog?category=academic" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">Academic</a>
+            </div>
+          </div>
+          
+          <a href="{{ url_for('logs.entry_log') }}" class="menu-link text-white hover:text-accent font-medium px-3 py-2 transition-colors">Time Logging</a>
+          <a href="{{ url_for('public.contact') }}" class="menu-link text-white hover:text-accent font-medium px-3 py-2 transition-colors">Contact</a>
+
+          <!-- Search Bar (Desktop) -->
+          <div class="ml-4 relative">
+            <input type="search" placeholder="Search books..." 
+              class="w-48 lg:w-64 pl-10 pr-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white focus:text-primary transition-all">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+
+          <!-- Auth Buttons / User Menu -->
+          <div class="ml-4 flex items-center gap-3">
+            {% if current_user.is_authenticated %}
+              <!-- User Dropdown -->
+              <div class="relative" x-data="{ open: false }">
+                <button @click="open = !open" @click.outside="open = false" 
+                  class="flex items-center gap-2 text-white hover:text-accent font-medium py-2 px-3 rounded-lg hover:bg-white/10 transition-colors">
+                  <div class="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-primary font-bold">
+                    {{ current_user.username[0].upper() }}
+                  </div>
+                  <span class="hidden lg:inline">{{ current_user.username }}</span>
+                  <svg class="w-4 h-4 transition-transform" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </button>
+                <div x-show="open" x-transition class="dropdown-menu show absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 border border-gray-100">
+                  <a href="/profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">👤 My Profile</a>
+                  <a href="/my-books" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">📚 My Books</a>
+                  <a href="/settings" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">⚙️ Settings</a>
+                  <hr class="my-1 border-gray-100">
+                  <a href="{{ url_for('auth.logout') }}" class="block px-4 py-2 text-red-600 hover:bg-red-50 transition-colors">🚪 Logout</a>
+                </div>
+              </div>
+            {% else %}
+              <a href="{{ url_for('auth.staff_login') }}" class="cta-btn bg-accent hover:bg-yellow-500 text-primary font-semibold py-2 px-5 rounded-lg shadow-lg transition-all duration-300">
+                Staff Login
+              </a>
+            {% endif %}
+          </div>
+        </div>
+
         <!-- Mobile Menu Button -->
-        <div class="md:hidden">
-          <button id="menu-btn" class="text-white focus:outline-none transform transition-transform duration-300">
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        <div class="md:hidden flex items-center gap-3">
+          <!-- Mobile Search Toggle -->
+          <button id="search-toggle" class="text-white hover:text-accent p-2 transition-colors" aria-label="Toggle search">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
           </button>
+          
+          <!-- Hamburger Button -->
+          <button id="menu-btn" class="text-white focus:outline-none p-2 relative w-10 h-10 flex flex-col justify-center items-center gap-1.5" 
+            aria-label="Toggle menu" aria-expanded="false" aria-controls="mobile-menu">
+            <span class="hamburger-line block w-6 h-0.5 bg-white rounded"></span>
+            <span class="hamburger-line block w-6 h-0.5 bg-white rounded"></span>
+            <span class="hamburger-line block w-6 h-0.5 bg-white rounded"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Search Bar (Hidden by default) -->
+      <div id="mobile-search" class="hidden md:hidden pb-3 px-2">
+        <div class="relative">
+          <input type="search" placeholder="Search books..." 
+            class="w-full pl-10 pr-4 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white focus:text-primary transition-all">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
         </div>
       </div>
     </div>
 
     <!-- Mobile Menu -->
-    <div class="md:hidden" id="mobile-menu">
-      <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-        <a href="/" class="block menu-link text-white hover:text-[#FFC72C] font-semibold transition-colors duration-300">Home</a>
-        <a href="/about" class="block menu-link text-white hover:text-[#FFC72C] font-semibold transition-colors duration-300">About</a>
-        <a href="/catalog" class="block menu-link text-white hover:text-[#FFC72C] font-semibold transition-colors duration-300">Catalog</a>
-        <a href="{{url_for('logs.entry_log')}}" class="block menu-link text-white hover:text-[#FFC72C] font-semibold transition-colors duration-300">Time Logging</a>
-        <a href="/contact" class="block menu-link text-white hover:text-[#FFC72C] font-semibold transition-colors duration-300">Contact</a>
-        <a href="{{ url_for('public.getting_started') }}"
-          class="block cta-btn bg-[#FFC72C] hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded shadow transition-colors duration-300 mt-2">
-          Get Started
-        </a>
+    <div id="mobile-menu" class="md:hidden bg-primary/95 border-t border-white/10">
+      <div class="px-4 pt-4 pb-6 space-y-2">
+        <a href="/" class="block menu-link text-white hover:text-accent font-medium py-2.5 px-3 rounded-lg hover:bg-white/10 transition-colors"> Home</a>
+        <a href="{{ url_for('public.about') }}" class="block menu-link text-white hover:text-accent font-medium py-2.5 px-3 rounded-lg hover:bg-white/10 transition-colors">About</a>
+        <a href="/catalog" class="block menu-link text-white hover:text-accent font-medium py-2.5 px-3 rounded-lg hover:bg-white/10 transition-colors">Catalog</a>
+        <a href="{{ url_for('logs.entry_log') }}" class="block menu-link text-white hover:text-accent font-medium py-2.5 px-3 rounded-lg hover:bg-white/10 transition-colors">Time Logging</a>
+        <a href="{{ url_for('public.contact') }}" class="block menu-link text-white hover:text-accent font-medium py-2.5 px-3 rounded-lg hover:bg-white/10 transition-colors">Contact</a>
+        
+        <hr class="my-4 border-white/10">
+        
+        {% if current_user.is_authenticated %}
+          <div class="px-3 py-2">
+            <div class="flex items-center gap-3 text-white mb-4">
+              <div class="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-primary font-bold text-lg">
+                {{ current_user.username[0].upper() }}
+              </div>
+              <div>
+                <div class="font-semibold">{{ current_user.username }}</div>
+                <div class="text-sm text-gray-300">Member</div>
+              </div>
+            </div>
+            <a href="/profile" class="block text-white/90 hover:text-accent py-2 px-3 rounded-lg hover:bg-white/10 transition-colors">👤 My Profile</a>
+            <a href="/my-books" class="block text-white/90 hover:text-accent py-2 px-3 rounded-lg hover:bg-white/10 transition-colors">📚 My Books</a>
+            <a href="{{ url_for('auth.logout') }}" class="block text-red-300 hover:text-red-200 py-2 px-3 rounded-lg hover:bg-red-500/20 transition-colors mt-2">🚪 Logout</a>
+          </div>
+        {% else %}
+          <div class="flex flex-col gap-3 px-3 pt-2">
+            <a href="{{ url_for('auth.staff_login') }}" class="cta-btn w-full text-center bg-accent hover:bg-yellow-500 text-primary font-semibold py-2.5 px-4 rounded-lg shadow transition-all">
+              Staff Login
+            </a>
+          </div>
+        {% endif %}
       </div>
     </div>
   </nav>
@@ -94,18 +280,78 @@
     {% block content %}{% endblock %}
   </main>
 
-  <!-- Mobile Menu Script -->
+  <!-- Footer -->
+  <footer class="bg-primary text-white py-8 px-4 mt-auto">
+    <div class="max-w-7xl mx-auto text-center">
+      <p class="text-gray-300">&copy; 2025 NC Library Management System. All rights reserved.</p>
+      <div class="mt-4 flex justify-center gap-6 text-sm">
+        <a href="/privacy" class="text-gray-400 hover:text-accent transition-colors">Privacy Policy</a>
+        <a href="/terms" class="text-gray-400 hover:text-accent transition-colors">Terms of Service</a>
+        <a href="/help" class="text-gray-400 hover:text-accent transition-colors">Help Center</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
   <script>
+    // Initialize AOS
+    AOS.init({ duration: 600, once: true, offset: 50 });
+
+    // Navbar scroll effect
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 10) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+
+    // Mobile menu toggle
     const menuBtn = document.getElementById('menu-btn');
     const mobileMenu = document.getElementById('mobile-menu');
-
+    
     menuBtn.addEventListener('click', () => {
+      const isExpanded = menuBtn.getAttribute('aria-expanded') === 'true';
+      menuBtn.classList.toggle('active');
       mobileMenu.classList.toggle('show');
+      menuBtn.setAttribute('aria-expanded', !isExpanded);
+    });
 
-      // Animate button icon (hamburger to X)
-      menuBtn.classList.toggle('rotate-90');
+    // Mobile search toggle
+    const searchToggle = document.getElementById('search-toggle');
+    const mobileSearch = document.getElementById('mobile-search');
+    
+    if (searchToggle) {
+      searchToggle.addEventListener('click', () => {
+        mobileSearch.classList.toggle('hidden');
+        if (!mobileSearch.classList.contains('hidden')) {
+          mobileSearch.querySelector('input').focus();
+        }
+      });
+    }
+
+    // Close mobile menu when clicking a link
+    document.querySelectorAll('#mobile-menu a').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.remove('show');
+        menuBtn.classList.remove('active');
+        menuBtn.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    // Dropdown functionality (vanilla JS fallback)
+    document.querySelectorAll('.group').forEach(group => {
+      const dropdown = group.querySelector('.dropdown-menu');
+      if (dropdown) {
+        group.addEventListener('mouseenter', () => dropdown.classList.add('show'));
+        group.addEventListener('mouseleave', () => dropdown.classList.remove('show'));
+      }
     });
   </script>
+  
+  <!-- Optional: Alpine.js for enhanced interactivity (uncomment if needed) -->
+  <!-- <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script> -->
 </body>
-
 </html>

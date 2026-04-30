@@ -1,421 +1,598 @@
-{% extends "base.html" %} {% block title %}Student Entry Log{% endblock %} {%
-block content %}
-<section class="min-h-screen flex bg-[#f7fafc] px-4">
-  <!-- LEFT PANEL -->
-  <div
-    class="hidden md:flex md:w-1/2 bg-[#2952a3] flex-col items-center justify-center p-12"
-  >
-    <img
-      src="{{ url_for('static', filename='images/image.png') }}"
-      class="w-44 h-44 mb-8 rounded-full border-8 border-[#FFC72C']"
-    />
-    <h1 class="text-white text-4xl font-extrabold mb-2">
-      Norzagaray College Library
-    </h1>
-    <p class="text-[#FFC72C] tracking-widest uppercase mb-10">
-      Attendance Monitoring
-    </p>
-    <p class="text-white text-lg">{{ now.strftime('%A, %B %d, %Y') }}</p>
-    <p class="text-white text-5xl font-bold">{{ now.strftime('%I:%M %p') }}</p>
+{% extends "base.html" %}
+
+{% block title %}Student Entry Log | NC Library{% endblock %}
+
+{% block content %}
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- 🐛 BUG FIX: CSS for reliable tab switching -->
+<style>
+  .tab-panel {
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    opacity: 1;
+    visibility: visible;
+    position: relative;
+  }
+  
+  .tab-panel.hidden {
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    pointer-events: none;
+  }
+  
+  /* Ensure interactive elements are always clickable */
+  #student-tab, #guest-tab, .tab-panel input, .tab-panel select, .tab-panel button {
+    pointer-events: auto !important;
+    cursor: pointer;
+  }
+  
+  /* Prevent layout shift during tab switch */
+  #forms-container {
+    min-height: 500px;
+    position: relative;
+  }
+</style>
+
+<section class="min-h-screen bg-gradient-to-br from-[#f8fafc] to-[#eef2f6] flex flex-col md:flex-row">
+  
+  <!-- LEFT PANEL - Branding & Info -->
+  <div class="md:w-5/12 lg:w-1/2 bg-gradient-to-br from-[#003366] via-[#004080] to-[#003366] flex flex-col items-center justify-center p-8 md:p-12 relative overflow-hidden">
+    
+    <!-- Decorative Background Elements -->
+    <div class="absolute top-0 left-0 w-64 h-64 bg-[#FFC72C]/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+    <div class="absolute bottom-0 right-0 w-80 h-80 bg-[#FFC72C]/5 rounded-full blur-3xl translate-x-1/3 translate-y-1/3"></div>
+    
+    <div class="relative z-10 text-center max-w-md" data-aos="fade-right" data-aos-duration="1000">
+      <!-- College Logo / Image -->
+      <div class="relative inline-block mb-6">
+        <img
+          src="{{ url_for('static', filename='images/image.png') }}"
+          alt="Norzagaray College Library"
+          class="w-36 h-36 md:w-44 md:h-44 rounded-full border-4 border-[#FFC72C] shadow-2xl object-cover"
+          onerror="this.src='https://ui-avatars.com/api/?name=NC+Library&background=FFC72C&color=003366&size=128'"
+        >
+        <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-[#FFC72C] rounded-full flex items-center justify-center shadow-lg">
+          <svg class="w-5 h-5 text-[#003366]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+        </div>
+      </div>
+      
+      <!-- Title -->
+      <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-2 leading-tight">
+        Norzagaray College Library
+      </h1>
+      <p class="text-[#FFC72C] font-semibold tracking-wider uppercase text-sm md:text-base mb-8">
+        Attendance Monitoring System
+      </p>
+      
+      <!-- Live Date & Time -->
+      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-4 md:p-6 border border-white/20">
+        <p class="text-white/90 text-sm md:text-base mb-2" id="live-date">
+          {{ now.strftime('%A, %B %d, %Y') }}
+        </p>
+        <p class="text-4xl md:text-5xl lg:text-6xl font-bold text-white font-mono" id="live-time">
+          {{ now.strftime('%I:%M %p') }}
+        </p>
+      </div>
+      
+      <!-- Quick Stats -->
+      <div class="mt-8 grid grid-cols-2 gap-4 text-center">
+        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
+          <p class="text-2xl font-bold text-[#FFC72C]" id="today-count">{{total_in}}</p>
+          <p class="text-white/80 text-xs">Total Entries</p>
+        </div>
+        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
+          <p class="text-2xl font-bold text-[#FFC72C]" id="now-inside">{{cureently_in}}</p>
+          <p class="text-white/80 text-xs">Currently Inside</p>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- RIGHT PANEL -->
-  <div class="flex w-full md:w-1/2 items-center justify-center p-12">
-    <div class="w-full max-w-lg bg-white p-10 rounded-xl shadow-xl">
-      <!-- TABS -->
-      <div class="flex border-b mb-6">
-        <button
-          id="student-tab"
-          class="flex-1 py-3 bg-[#2952a3] text-white font-bold rounded-t"
-        >
-          Student
-        </button>
-        <button id="guest-tab" class="flex-1 py-3 font-bold text-gray-700">
-          Guest
-        </button>
-      </div>
-
-      <!-- STUDENT INFO -->
-      <div
-        id="student-info"
-        class="hidden mb-4 p-3 rounded bg-green-100 text-green-900 text-center shadow-md"
-      >
-        <p id="student-name" class="font-bold text-lg"></p>
-        <p id="student-course"></p>
-      </div>
-
-      <div class="overflow-hidden">
-        <div
-          id="forms-wrapper"
-          class="flex transition-transform duration-500"
-          style="width: 200%"
-        >
-          <!-- STUDENT FORM -->
-          <form
-            method="POST"
-            class="w-1/2 pr-6"
-            id="student-form"
-            autocomplete="off"
+  <!-- RIGHT PANEL - Entry Form -->
+  <div class="md:w-7/12 lg:w-1/2 flex items-center justify-center p-6 md:p-12">
+    <div class="w-full max-w-xl">
+      
+      <!-- Card Container -->
+      <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+        
+        <!-- Header Tabs -->
+        <div class="flex border-b border-gray-200">
+          <button
+            id="student-tab"
+            class="flex-1 py-4 px-6 font-semibold text-[#003366] bg-[#003366]/5 border-b-2 border-[#003366] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#003366]/20"
+            role="tab"
+            aria-selected="true"
+            aria-controls="student-form"
+            type="button"
           >
-            <p class="mb-6 font-semibold">Scan or Enter Student Number</p>
-
-            <input
-              id="student_number"
-              name="student_number"
-              class="w-full border rounded-lg py-3 px-3 text-lg"
-              placeholder="Student Number"
-            />
-
-            <select
-              id="reason"
-              name="reason"
-              class="w-full border rounded-lg py-3 px-3 mt-6 text-lg"
-            >
-              <option value="" disabled selected>Select reason</option>
-              <option value="Borrow Books">Read/ Borrow Book/s</option>
-              <option value="Return Books">
-                Read/ Journal/s or Magazine/s
-              </option>
-              <option value="Borrow Thesis or Research">
-                Read / Borrow Thesis or Research Work/s
-              </option>
-              <option value="Study or Need of Learning Space">
-                Study/ Need of Learning Space
-              </option>
-              <option value="use of Computer">Use of Computer</option>
-              <option value="Consultation">Consultation</option>
-              <option value="Review for BLEPT">Review for BLEPT</option>
-              <option value="Apply Library ID or Card">
-                Apply Library ID or Card
-              </option>
-              <option value="Claim Library ID or Card">
-                Claim Library ID or Card
-              </option>
-              <option value="Request for Referral Letter">
-                Request for Referral Letter
-              </option>
-              <option value="Signing of Clearance">Signing of Clearance</option>
-              <option value="Other">Other</option>
-            </select>
-
-            <input
-              id="other_reason"
-              name="other_reason"
-              placeholder="Enter reason"
-              class="hidden w-full border rounded-lg py-3 px-3 mt-6"
-            />
-
-            <button
-              type="submit"
-              class="w-full mt-8 bg-[#2952a3] text-white py-3 rounded-lg font-bold"
-            >
-              Submit
-            </button>
-          </form>
-
-          <!-- GUEST FORM -->
-          <form method="POST" class="w-1/2 pl-6" id="guest-form">
-            <input
-              name="fullname"
-              placeholder="Full Name"
-              class="w-full border rounded-lg py-3 px-3"
-            />
-
-            <!-- DESIGNATION SELECT -->
-            <select
-              name="designation"
-              class="w-full border rounded-lg py-3 px-3 mt-6 text-lg"
-            >
-              <option value="" disabled selected>Select Designation</option>
-              <option value="Student">Alumni</option>
-              <option value="Borrower">Teaching Personel</option>
-              <option value="Guest">Visitor from other Institute or Company</option>
-            </select>
-
-            <select
-              id="reason"
-              name="reason"
-              class="w-full border rounded-lg py-3 px-3 mt-6 text-lg"
-            >
-              <option value="" disabled selected>Select reason</option>
-              <option value="Borrow Books">Read/ Borrow Book/s</option>
-              <option value="Return Books">
-                Read/ Journal/s or Magazine/s
-              </option>
-              <option value="Borrow Thesis or Research">
-                Read / Borrow Thesis or Research Work/s
-              </option>
-              <option value="Study or Need of Learning Space">
-                Study/ Need of Learning Space
-              </option>
-              <option value="use of Computer">Use of Computer</option>
-              <option value="Consultation">Consultation</option>
-              <option value="Review for BLEPT">Review for BLEPT</option>
-              <option value="Apply Library ID or Card">
-                Apply Library ID or Card
-              </option>
-              <option value="Claim Library ID or Card">
-                Claim Library ID or Card
-              </option>
-              <option value="Request for Referral Letter">
-                Request for Referral Letter
-              </option>
-              <option value="Signing of Clearance">Signing of Clearance</option>
-              <option value="Other">Other</option>
-            </select>
-
-            <button
-              class="w-full mt-8 bg-[#2952a3] text-white py-3 rounded-lg font-bold"
-            >
-              Submit
-            </button>
-          </form>
+            <div class="flex items-center justify-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+              <span>Student</span>
+            </div>
+          </button>
+          <button
+            id="guest-tab"
+            class="flex-1 py-4 px-6 font-semibold text-gray-500 hover:text-[#003366] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#003366]/20"
+            role="tab"
+            aria-selected="false"
+            aria-controls="guest-form"
+            type="button"
+          >
+            <div class="flex items-center justify-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
+              <span>Guest</span>
+            </div>
+          </button>
         </div>
+
+        <!-- Content Area -->
+        <div class="p-6 md:p-8">
+          
+          <!-- Student Info Display (shows after lookup) -->
+          <div
+            id="student-info"
+            class="hidden mb-6 p-4 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 shadow-sm"
+          >
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+              <div>
+                <p id="student-name" class="font-bold text-[#003366] text-lg"></p>
+                <p id="student-course" class="text-gray-600 text-sm"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 🐛 BUG FIX: Simple opacity-based tab container -->
+          <div id="forms-container" class="relative">
+            
+            <!-- ================= STUDENT FORM ================= -->
+            <form method="POST" id="student-form" class="tab-panel space-y-5" autocomplete="off">
+              
+              <!-- Input Label with Hint -->
+              <div class="flex items-center justify-between">
+                <label class="font-semibold text-[#003366]">Student Number</label>
+                <span class="text-xs text-gray-500 flex items-center gap-1">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                  </svg>
+                  Scan or type
+                </span>
+              </div>
+              
+              <!-- Student Number Input -->
+              <div class="relative">
+                <input
+                  id="student_number"
+                  name="student_number"
+                  class="w-full border-2 border-gray-200 rounded-xl py-3.5 px-4 text-lg focus:border-[#003366] focus:ring-4 focus:ring-[#003366]/10 transition-all placeholder-gray-400"
+                  placeholder="Enter ID or scan barcode"
+                  autofocus
+                >
+                <button type="button" id="scan-btn" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#003366] transition-colors p-1" title="Use camera to scan">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Reason Select -->
+              <div>
+                <label class="block font-semibold text-[#003366] mb-2">Purpose of Visit</label>
+                <select
+                  id="student_reason"
+                  name="reason"
+                  class="w-full border-2 border-gray-200 rounded-xl py-3.5 px-4 text-lg focus:border-[#003366] focus:ring-4 focus:ring-[#003366]/10 transition-all bg-white"
+                >
+                  <option value="" disabled selected>Select purpose</option>
+                  <option value="Borrow Books">📚 Read / Borrow Books</option>
+                  <option value="Return Books">📖 Return Books / Journals</option>
+                  <option value="Borrow Thesis or Research">🎓 Thesis / Research Work</option>
+                  <option value="Study or Need of Learning Space">📝 Study / Learning Space</option>
+                  <option value="use of Computer">💻 Use of Computer</option>
+                  <option value="Consultation">🗣️ Consultation</option>
+                  <option value="Review for BLEPT">📋 Review for BLEPT</option>
+                  <option value="Apply Library ID or Card">🪪 Apply Library ID</option>
+                  <option value="Claim Library ID or Card">🪪 Claim Library ID</option>
+                  <option value="Request for Referral Letter">📄 Request Referral Letter</option>
+                  <option value="Signing of Clearance">✅ Signing of Clearance</option>
+                  <option value="Other">⋯ Other</option>
+                </select>
+              </div>
+
+              <!-- Other Reason Input (hidden by default) -->
+              <input
+                id="other_reason"
+                name="other_reason"
+                placeholder="Please specify your reason"
+                class="hidden w-full border-2 border-gray-200 rounded-xl py-3.5 px-4 text-lg focus:border-[#003366] focus:ring-4 focus:ring-[#003366]/10 transition-all"
+              >
+
+              <!-- Submit Button -->
+              <button
+                type="submit"
+                id="student-submit"
+                class="w-full mt-2 bg-gradient-to-r from-[#003366] to-[#004080] hover:from-[#004080] hover:to-[#003366] text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+              >
+                <span>Submit Entry</span>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                </svg>
+              </button>
+            </form>
+
+            <!-- ================= GUEST FORM ================= -->
+            <form method="POST" id="guest-form" class="tab-panel hidden space-y-5" autocomplete="off">
+              
+              <!-- Full Name -->
+              <div>
+                <label class="block font-semibold text-[#003366] mb-2">Full Name *</label>
+                <input
+                  name="fullname"
+                  placeholder="Enter your full name"
+                  class="w-full border-2 border-gray-200 rounded-xl py-3.5 px-4 text-lg focus:border-[#003366] focus:ring-4 focus:ring-[#003366]/10 transition-all placeholder-gray-400"
+                  required
+                >
+              </div>
+
+              <!-- Designation Select -->
+              <div>
+                <label class="block font-semibold text-[#003366] mb-2">Designation *</label>
+                <select
+                  name="designation"
+                  class="w-full border-2 border-gray-200 rounded-xl py-3.5 px-4 text-lg focus:border-[#003366] focus:ring-4 focus:ring-[#003366]/10 transition-all bg-white"
+                  required
+                >
+                  <option value="" disabled selected>Select designation</option>
+                  <option value="Alumni">🎓 Alumni</option>
+                  <option value="Teaching Personnel">👨‍🏫 Teaching Personnel</option>
+                  <option value="Non-Teaching Personnel">👔 Non-Teaching Personnel</option>
+                  <option value="Visitor">👥 Visitor from Other Institution</option>
+                  <option value="Parent/Guardian">👪 Parent / Guardian</option>
+                  <option value="Other">⋯ Other</option>
+                </select>
+              </div>
+
+              <!-- Reason Select -->
+              <div>
+                <label class="block font-semibold text-[#003366] mb-2">Purpose of Visit *</label>
+                <select
+                  id="guest_reason"
+                  name="reason"
+                  class="w-full border-2 border-gray-200 rounded-xl py-3.5 px-4 text-lg focus:border-[#003366] focus:ring-4 focus:ring-[#003366]/10 transition-all bg-white"
+                  required
+                >
+                  <option value="" disabled selected>Select purpose</option>
+                  <option value="Borrow Books">📚 Read / Borrow Books</option>
+                  <option value="Return Books">📖 Return Books / Journals</option>
+                  <option value="Borrow Thesis or Research">🎓 Thesis / Research Work</option>
+                  <option value="Study or Need of Learning Space">📝 Study / Learning Space</option>
+                  <option value="use of Computer">💻 Use of Computer</option>
+                  <option value="Consultation">🗣️ Consultation</option>
+                  <option value="Review for BLEPT">📋 Review for BLEPT</option>
+                  <option value="Apply Library ID or Card">🪪 Apply Library ID</option>
+                  <option value="Claim Library ID or Card">🪪 Claim Library ID</option>
+                  <option value="Request for Referral Letter">📄 Request Referral Letter</option>
+                  <option value="Signing of Clearance">✅ Signing of Clearance</option>
+                  <option value="Other">⋯ Other</option>
+                </select>
+              </div>
+
+              <!-- Other Reason Input for Guest -->
+              <input
+                id="guest_other_reason"
+                name="other_reason"
+                placeholder="Please specify your reason"
+                class="hidden w-full border-2 border-gray-200 rounded-xl py-3.5 px-4 text-lg focus:border-[#003366] focus:ring-4 focus:ring-[#003366]/10 transition-all"
+              >
+
+              <!-- Submit Button -->
+              <button
+                type="submit"
+                id="guest-submit"
+                class="w-full mt-2 bg-gradient-to-r from-[#003366] to-[#004080] hover:from-[#004080] hover:to-[#003366] text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+              >
+                <span>Submit Entry</span>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                </svg>
+              </button>
+            </form>
+          </div>
+
+          <!-- Helper Text -->
+          <p class="text-center text-gray-500 text-sm mt-6">
+            🔐 Your entry is logged for security and library management purposes.
+          </p>
+        </div>
+      </div>
+
+      <!-- Quick Help -->
+      <div class="mt-6 text-center">
+        <a href="{{ url_for('public.contact') }}" class="text-[#003366] hover:text-[#004080] font-medium text-sm inline-flex items-center gap-1 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          Need help? Contact library staff
+        </a>
       </div>
     </div>
   </div>
 </section>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+<!-- Live Time Update Script -->
 <script>
-const studentTab = document.getElementById("student-tab");
-const guestTab = document.getElementById("guest-tab");
-const forms = document.getElementById("forms-wrapper");
-
-studentTab.addEventListener("click", () => {
-  forms.style.transform = "translateX(0)";
-
-  // Update tab highlight
-  studentTab.classList.add("bg-[#2952a3]", "text-white");
-  studentTab.classList.remove("text-gray-700");
-
-  guestTab.classList.remove("bg-[#2952a3]", "text-white");
-  guestTab.classList.add("text-gray-700");
-});
-
-guestTab.addEventListener("click", () => {
-  forms.style.transform = "translateX(-50%)";
-
-  // Update tab highlight
-  guestTab.classList.add("bg-[#2952a3]", "text-white");
-  guestTab.classList.remove("text-gray-700");
-
-  studentTab.classList.remove("bg-[#2952a3]", "text-white");
-  studentTab.classList.add("text-gray-700");
-});
+  function updateTime() {
+    const now = new Date();
+    const timeEl = document.getElementById('live-time');
+    const dateEl = document.getElementById('live-date');
+    
+    if (timeEl) {
+      timeEl.textContent = now.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: true 
+      });
+    }
+    if (dateEl && !dateEl.dataset.static) {
+      dateEl.textContent = now.toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    }
+  }
+  setInterval(updateTime, 60000);
+  document.addEventListener('DOMContentLoaded', updateTime);
 </script>
 
-
+<!-- 🐛 BUG FIX: Simplified, reliable tab switching logic -->
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const studentInput = document.getElementById("student_number");
-    const reason = document.getElementById("reason");
-    const other = document.getElementById("other_reason");
-    const info = document.getElementById("student-info");
-    const nameEl = document.getElementById("student-name");
-    const courseEl = document.getElementById("student-course");
-    const form = document.getElementById("student-form");
+document.addEventListener('DOMContentLoaded', () => {
+  const studentTab = document.getElementById('student-tab');
+  const guestTab = document.getElementById('guest-tab');
+  const studentForm = document.getElementById('student-form');
+  const guestForm = document.getElementById('guest-form');
+  const studentNumberInput = document.getElementById('student_number');
+  const studentReasonSelect = document.getElementById('student_reason');
+  const otherReasonInput = document.getElementById('other_reason');
+  const guestReasonSelect = document.getElementById('guest_reason');
+  const guestOtherReasonInput = document.getElementById('guest_other_reason');
+  const studentInfoBox = document.getElementById('student-info');
+  const studentNameEl = document.getElementById('student-name');
+  const studentCourseEl = document.getElementById('student-course');
 
-    let liveTimer = null;
-    let resetTimer = null;
+  let currentTab = 'student';
+  let liveLookupTimer = null;
+  let autoResetTimer = null;
 
-    /* Autofocus once on page load */
-    studentInput.focus();
+  // ================= SIMPLE TAB SWITCHING =================
+  function showTab(tabName) {
+    if (currentTab === tabName) return;
+    currentTab = tabName;
+    
+    if (tabName === 'student') {
+      // Update tabs
+      studentTab.classList.add('bg-[#003366]/5', 'text-[#003366]', 'border-[#003366]');
+      studentTab.classList.remove('text-gray-500');
+      studentTab.setAttribute('aria-selected', 'true');
+      
+      guestTab.classList.remove('bg-[#003366]/5', 'text-[#003366]', 'border-[#003366]');
+      guestTab.classList.add('text-gray-500');
+      guestTab.setAttribute('aria-selected', 'false');
+      
+      // Show/hide forms
+      studentForm.classList.remove('hidden');
+      guestForm.classList.add('hidden');
+      
+      // Focus input after short delay
+      setTimeout(() => studentNumberInput?.focus(), 50);
+      
+    } else {
+      // Update tabs
+      guestTab.classList.add('bg-[#003366]/5', 'text-[#003366]', 'border-[#003366]');
+      guestTab.classList.remove('text-gray-500');
+      guestTab.setAttribute('aria-selected', 'true');
+      
+      studentTab.classList.remove('bg-[#003366]/5', 'text-[#003366]', 'border-[#003366]');
+      studentTab.classList.add('text-gray-500');
+      studentTab.setAttribute('aria-selected', 'false');
+      
+      // Show/hide forms
+      guestForm.classList.remove('hidden');
+      studentForm.classList.add('hidden');
+      
+      // Focus input after short delay
+      setTimeout(() => {
+        const fullnameInput = guestForm?.querySelector("input[name='fullname']");
+        fullnameInput?.focus();
+      }, 50);
+    }
+  }
 
-    /* Show/hide Other reason input */
-    reason.addEventListener("change", (e) => {
-      const isOther = e.target.value === "Other";
-      other.classList.toggle("hidden", !isOther);
-      if (isOther) other.focus();
-      if (nameEl.textContent) info.classList.remove("hidden");
+  // Attach click handlers
+  studentTab?.addEventListener('click', (e) => { e.preventDefault(); showTab('student'); });
+  guestTab?.addEventListener('click', (e) => { e.preventDefault(); showTab('guest'); });
+
+  // ================= "OTHER" REASON TOGGLE =================
+  function setupReasonToggle(selectEl, inputEl) {
+    if (!selectEl || !inputEl) return;
+    selectEl.addEventListener('change', () => {
+      const isOther = selectEl.value === 'Other';
+      inputEl.classList.toggle('hidden', !isOther);
+      if (isOther) setTimeout(() => inputEl.focus(), 50);
     });
+  }
+  setupReasonToggle(studentReasonSelect, otherReasonInput);
+  setupReasonToggle(guestReasonSelect, guestOtherReasonInput);
 
-    /* ================= AJAX LIVE LOOKUP ================= */
-    studentInput.addEventListener("input", () => {
-      clearTimeout(liveTimer);
-      liveTimer = setTimeout(() => {
-        const v = studentInput.value.trim();
-        if (v.length < 3) return;
-
-        fetch("/logs/entry-log", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ student_number: v }),
+  // ================= AJAX STUDENT LOOKUP =================
+  if (studentNumberInput) {
+    studentNumberInput.addEventListener('input', () => {
+      clearTimeout(liveLookupTimer);
+      const val = studentNumberInput.value.trim();
+      if (val.length < 3) { studentInfoBox?.classList.add('hidden'); return; }
+      
+      liveLookupTimer = setTimeout(() => {
+        fetch('/logs/entry-log', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ student_number: val })
         })
-          .then((r) => r.json())
-          .then((d) => {
-            if (d.status === "ok") {
-              nameEl.textContent = d.name;
-              courseEl.textContent = d.course;
-              info.classList.remove("hidden");
-
-              clearTimeout(resetTimer);
-              resetTimer = setTimeout(() => {
-                studentInput.value = "";
-                reason.value = "";
-                other.value = "";
-                info.classList.add("hidden");
-                studentInput.focus();
-              }, 10000);
-            } else if (d.status === "error") {
-              info.classList.add("hidden");
-            }
-          });
-      }, 150);
+        .then(r => r.json())
+        .then(d => {
+          if (d?.status === 'ok' && studentInfoBox) {
+            if (studentNameEl) studentNameEl.textContent = d.name;
+            if (studentCourseEl) studentCourseEl.textContent = d.course;
+            studentInfoBox.classList.remove('hidden');
+            clearTimeout(autoResetTimer);
+            autoResetTimer = setTimeout(() => {
+              studentNumberInput.value = '';
+              if (studentReasonSelect) studentReasonSelect.value = '';
+              if (otherReasonInput) otherReasonInput.value = '';
+              studentInfoBox.classList.add('hidden');
+              studentNumberInput.focus();
+            }, 10000);
+          } else {
+            studentInfoBox?.classList.add('hidden');
+          }
+        })
+        .catch(() => studentInfoBox?.classList.add('hidden'));
+      }, 300);
     });
+  }
 
-    /* ================= MANUAL SUBMISSION ================= */
-    form.addEventListener("submit", (e) => {
+  // ================= FORM SUBMISSIONS =================
+  // Student form
+  if (studentForm) {
+    studentForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-
-      const studentNumber = studentInput.value.trim();
-      const reasonVal = reason.value;
-      const otherVal = other.value;
-
-      if (!studentNumber) {
-        Swal.fire({ icon: "error", title: "Enter Student Number" });
+      const num = studentNumberInput?.value.trim();
+      const reason = studentReasonSelect?.value;
+      const other = otherReasonInput?.value || '';
+      
+      if (!num) {
+        Swal.fire({ icon: 'error', title: '⚠️ Student Number Required', text: 'Please enter a valid student number.', confirmButtonColor: '#003366' });
         return;
       }
-
-      fetch("/logs/entry-log", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          student_number: studentNumber,
-          reason: reasonVal,
-          other_reason: otherVal,
-        }),
-      })
-        .then((r) => r.json())
-        .then((d) => {
-          // SweetAlert modal for IN / OUT
-          Swal.fire({
-            icon:
-              d.status === "success"
-                ? "success"
-                : d.status === "warning"
-                  ? "warning"
-                  : "error",
-            title:
-              d.mode === "IN"
-                ? "Logged IN"
-                : d.mode === "OUT"
-                  ? "Logged OUT"
-                  : "Notice",
-            text: d.message,
-            timer: 2500,
-            showConfirmButton: false,
-            didClose: () => {
-              // Clear all inputs and hide info box after modal closes
-              studentInput.value = "";
-              reason.value = "";
-              other.value = "";
-              info.classList.add("hidden");
-              studentInput.focus();
-            },
-          });
-
-          if (d.status === "success") {
-            // Show info box while modal is visible
-            nameEl.textContent = studentNumber;
-            courseEl.textContent = reasonVal || otherVal;
-            info.classList.remove("hidden");
-          }
+      if (!reason) {
+        Swal.fire({ icon: 'error', title: '⚠️ Select Purpose', text: 'Please select why you\'re visiting.', confirmButtonColor: '#003366' });
+        return;
+      }
+      
+      const btn = document.getElementById('student-submit');
+      const originalBtn = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Processing...';
+      
+      try {
+        const res = await fetch('/logs/entry-log', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ student_number: num, reason, other_reason: other })
         });
+        const d = await res.json();
+        const icon = d.status === 'success' ? 'success' : d.status === 'warning' ? 'warning' : 'error';
+        const title = d.mode === 'IN' ? '✅ Logged IN' : d.mode === 'OUT' ? '👋 Logged OUT' : '📋 Entry Recorded';
+        
+        Swal.fire({ icon, title, text: d.message, confirmButtonColor: '#003366', timer: 3000, timerProgressBar: true, showConfirmButton: false });
+        
+        setTimeout(() => {
+          studentForm.reset();
+          studentInfoBox?.classList.add('hidden');
+          studentNumberInput?.focus();
+          btn.disabled = false;
+          btn.innerHTML = originalBtn;
+        }, 3000);
+      } catch {
+        Swal.fire({ icon: 'error', title: '❌ Submission Failed', text: 'Please try again.', confirmButtonColor: '#003366' });
+        btn.disabled = false;
+        btn.innerHTML = originalBtn;
+      }
     });
-  });
-</script>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const guestForm = document.querySelector("form.w-1/2.pl-6"); // Guest form
-  const guestName = guestForm.querySelector("input[name='fullname']");
-  const guestDesignation = guestForm.querySelector("select[name='designation']");
-  const guestReason = guestForm.querySelectorAll("select[name='reason']")[1]; // second select with name="reason"
+  }
 
-  guestForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-
-    if (!guestName.value.trim() || !guestDesignation.value || !guestReason.value) {
-      Swal.fire({
-        icon: "error",
-        title: "Please fill all guest fields!",
-      });
-      return;
-    }
-
-    fetch("/logs/entry-log", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        fullname: guestName.value.trim(),
-        designation: guestDesignation.value,
-        reason: guestReason.value,
-      }),
-    })
-      .then((r) => r.json())
-      .then((d) => {
-        Swal.fire({
-          icon: d.status === "success" ? "success" : "error",
-          title: d.mode === "IN" ? "Logged IN" : d.mode === "OUT" ? "Logged OUT" : "Notice",
-          text: d.message,
-          timer: 2500,
-          showConfirmButton: false,
-          didClose: () => {
-            guestName.value = "";
-            guestDesignation.value = "";
-            guestReason.value = "";
-          },
+  // Guest form
+  if (guestForm) {
+    guestForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fullname = guestForm.querySelector("input[name='fullname']")?.value.trim();
+      const designation = guestForm.querySelector("select[name='designation']")?.value;
+      const reason = guestReasonSelect?.value;
+      const other = guestOtherReasonInput?.value || '';
+      
+      if (!fullname) {
+        Swal.fire({ icon: 'error', title: '⚠️ Name Required', text: 'Please enter your full name.', confirmButtonColor: '#003366' });
+        return;
+      }
+      if (!designation) {
+        Swal.fire({ icon: 'error', title: '⚠️ Select Designation', text: 'Please select your designation.', confirmButtonColor: '#003366' });
+        return;
+      }
+      if (!reason) {
+        Swal.fire({ icon: 'error', title: '⚠️ Select Purpose', text: 'Please select why you\'re visiting.', confirmButtonColor: '#003366' });
+        return;
+      }
+      
+      const btn = document.getElementById('guest-submit');
+      const originalBtn = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Processing...';
+      
+      try {
+        const res = await fetch('/logs/entry-log', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ fullname, designation, reason, other_reason: other })
         });
-      });
-  });
-});
-</script>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const guestForm = document.getElementById("guest-form");
-
-  guestForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-
-    const fullname = guestForm.querySelector("input[name='fullname']").value.trim();
-    const designation = guestForm.querySelector("select[name='designation']").value;
-    const reason = guestForm.querySelector("select[name='reason']").value;
-
-    if (!fullname) {
-      Swal.fire({ icon: "error", title: "Enter Full Name" });
-      return;
-    }
-
-    fetch("/logs/entry-log", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        fullname: fullname,
-        designation: designation,
-        reason: reason
-      }),
-    })
-    .then(r => r.json())
-    .then(d => {
-      Swal.fire({
-        icon: d.status === "success" ? "success" : d.status === "warning" ? "warning" : "error",
-        title: d.mode === "IN" ? "Logged IN" : d.mode === "OUT" ? "Logged OUT" : "Notice",
-        text: d.message,
-        timer: 2500,
-        showConfirmButton: false,
-        didClose: () => {
-          // Auto-clear guest form
+        const d = await res.json();
+        const icon = d.status === 'success' ? 'success' : d.status === 'warning' ? 'warning' : 'error';
+        const title = d.mode === 'IN' ? '✅ Logged IN' : d.mode === 'OUT' ? '👋 Logged OUT' : '📋 Entry Recorded';
+        
+        Swal.fire({ icon, title, text: d.message, confirmButtonColor: '#003366', timer: 3000, timerProgressBar: true, showConfirmButton: false });
+        
+        setTimeout(() => {
           guestForm.reset();
-        }
-      });
-    })
-    .catch(() => {
-      Swal.fire({ icon: "error", title: "Something went wrong!" });
+          guestOtherReasonInput?.classList.add('hidden');
+          btn.disabled = false;
+          btn.innerHTML = originalBtn;
+        }, 3000);
+      } catch {
+        Swal.fire({ icon: 'error', title: '❌ Submission Failed', text: 'Please try again.', confirmButtonColor: '#003366' });
+        btn.disabled = false;
+        btn.innerHTML = originalBtn;
+      }
     });
+  }
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === '1') { e.preventDefault(); showTab('student'); }
+    if (e.ctrlKey && e.key === '2') { e.preventDefault(); showTab('guest'); }
+  });
+
+  // Scan button placeholder
+  const scanBtn = document.getElementById('scan-btn');
+  scanBtn?.addEventListener('click', () => {
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({ title: '🔲 QR/Barcode Scanner', text: 'Camera access would be requested here in production. For now, please type the student number.', icon: 'info', confirmButtonColor: '#003366' });
+    }
   });
 });
 </script>
-
-
 {% endblock %}

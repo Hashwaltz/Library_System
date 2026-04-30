@@ -11,6 +11,8 @@ from . import logs_bp
 @logs_bp.route("/entry-log", methods=["GET", "POST"])
 def entry_log():
     now = datetime.now()
+    cureently_in = EntryLog.query.filter_by(status="IN", timestamp=date.today()).count()
+    total_in = EntryLog.query.filter_by(status="IN").count()
 
     # ================= AUTO LOGOUT AT 7PM =================
     if now.time() >= time(19, 0):
@@ -121,4 +123,7 @@ def entry_log():
 
         return jsonify({"status": "error", "message": "Invalid submission!"})
 
-    return render_template("logs/logging.html", now=now)
+    return render_template("logs/logging.html", 
+                           now=now,
+                            cureently_in=cureently_in,
+                            total_in=total_in)

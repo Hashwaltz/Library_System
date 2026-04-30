@@ -1,5 +1,5 @@
 def register_blueprints(app):
-    from ..services.auth_services import auth_bp
+    from .auth import auth_bp
     from .admin import admin_bp
     from .librarian import librarian_bp
     from .public import public_bp

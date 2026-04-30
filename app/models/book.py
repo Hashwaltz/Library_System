@@ -22,6 +22,7 @@ class Book(db.Model):
 
     def __repr__(self):
         return f'<Book {self.title} by {self.author}>'
+    
 
 class Classification(db.Model):
     id = db.Column(db.Integer, primary_key=True)

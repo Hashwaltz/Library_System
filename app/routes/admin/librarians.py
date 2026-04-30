@@ -14,7 +14,18 @@ from . import admin_bp
 @role_required("admin")
 def manage_librarians():
     librarians = User.query.order_by(User.username.asc()).all()
-    return render_template("admin/librarians.html", users=librarians)
+    users_data = [
+        {
+            "id": u.id,
+            "username": u.username,
+            "email": u.email,
+            "role": u.role,
+            "is_active": u.is_active
+
+        }
+        for u in librarians
+    ]
+    return render_template("admin/librarians.html", users=users_data)
 
 
 @admin_bp.route("/add_librarian", methods=["POST"])

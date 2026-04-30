@@ -3,49 +3,198 @@
 {% block title %}Staff Login - NC Library{% endblock %}
 
 {% block content %}
-<section class="bg-white min-h-screen flex items-center justify-center px-4">
-  <div class="max-w-md w-full bg-white p-8 rounded-lg shadow-lg">
-    <!-- Heading -->
-    <h2 class="text-3xl font-bold text-[#003366] text-center mb-6">Staff Login</h2>
-    <p class="text-center text-black mb-6">
-      Enter your credentials to access your account
+
+{# ===================================================== #}
+{# 🔧 BACKGROUND IMAGE CONFIGURATION - EDIT HERE 🔧 #}
+{# ===================================================== #}
+{# 
+   Set your background image URL below.
+   Options:
+   • Local: '/static/images/your-image.jpg'
+   • External: 'https://example.com/image.jpg'
+   • None: '' or comment out to use gradient only
+#}
+{% set BG_IMAGE = '/static/images/norzagaray_college.png' %} 
+{% set BG_OVERLAY_OPACITY = 0.75 %}  {# 0.0 = transparent, 1.0 = solid #}
+{% set BG_POSITION = 'center' %}     {# CSS background-position value #}
+{# ===================================================== #}
+
+<section 
+  class="min-h-screen flex items-center justify-center px-4 py-12 relative"
+  style="
+    background-image: 
+      {% if BG_IMAGE %}url('{{ BG_IMAGE }}'), {% endif %}
+      linear-gradient(135deg, 
+        rgba(0, 51, 102, {{ BG_OVERLAY_OPACITY }}), 
+        rgba(0, 34, 68, {{ BG_OVERLAY_OPACITY }}),
+        rgba(0, 22, 44, {{ BG_OVERLAY_OPACITY }}));
+    background-size: {% if BG_IMAGE %}cover, auto{% else %}auto{% endif %};
+    background-position: {{ BG_POSITION }}, center;
+    background-blend-mode: {% if BG_IMAGE %}multiply, normal{% else %}normal{% endif %};
+    background-attachment: fixed;
+  "
+>
+  
+  <!-- Decorative overlay pattern (only shows if BG_IMAGE is set) -->
+  {% if BG_IMAGE %}
+  <div class="absolute inset-0 opacity-10 pointer-events-none" 
+       style="background-image: 
+         radial-gradient(circle at 25% 25%, rgba(255,255,255,0.15) 0%, transparent 50%), 
+         radial-gradient(circle at 75% 75%, rgba(255,255,255,0.08) 0%, transparent 50%);
+         background-size: 100% 100%;">
+  </div>
+  {% endif %}
+
+  <div class="w-full max-w-md relative z-10">
+    
+    <!-- Login Card -->
+    <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 transform transition-all duration-300 hover:shadow-white/20 hover:shadow-3xl">
+      
+      <!-- Branding -->
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-[#003366] rounded-full mb-4 shadow-lg">
+          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+          </svg>
+        </div>
+        <h2 class="text-3xl font-bold text-[#003366]">Staff Portal</h2>
+        <p class="text-gray-600 mt-2">NC Library Management System</p>
+      </div>
+
+      <!-- Login Form -->
+      <form action="{{ url_for('auth.staff_login') }}" method="POST" class="space-y-5" id="loginForm">
+        
+        <!-- Email -->
+        <div class="relative">
+          <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Work Email</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9v-1a2 2 0 012-2h2a2 2 0 012 2v1a9 9 0 10-9-9"/>
+              </svg>
+            </span>
+            <input type="email" name="email" id="email" required
+                   placeholder="staff@nclibrary.org" autocomplete="email"
+                   class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg 
+                          focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent 
+                          transition-all duration-200 placeholder-gray-400 hover:border-[#003366]/50">
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="relative">
+          <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+            </span>
+            <input type="password" name="password" id="password" required
+                   placeholder="••••••••" autocomplete="current-password"
+                   class="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg 
+                          focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent 
+                          transition-all duration-200 placeholder-gray-400 hover:border-[#003366]/50">
+            <button type="button" id="togglePassword" 
+                    class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-[#003366] transition-colors"
+                    aria-label="Toggle password visibility">
+              <svg class="w-5 h-5 toggle-icon toggle-icon--show" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+              </svg>
+              <svg class="w-5 h-5 toggle-icon toggle-icon--hidden hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Remember & Forgot -->
+        <div class="flex items-center justify-between text-sm">
+          <label class="flex items-center space-x-2 cursor-pointer group">
+            <input type="checkbox" name="remember" 
+                   class="w-4 h-4 text-[#003366] border-gray-300 rounded focus:ring-[#003366] cursor-pointer">
+            <span class="text-gray-600 group-hover:text-gray-800 transition-colors">Remember me</span>
+          </label>
+          <a href="#" class="text-[#003366] hover:text-[#002244] font-medium hover:underline">Forgot password?</a>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" id="submitBtn"
+                class="w-full bg-[#003366] hover:bg-[#002244] active:bg-[#001a33] text-white font-semibold py-3 px-4 rounded-lg 
+                       shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0
+                       transition-all duration-200 flex items-center justify-center space-x-2
+                       disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none">
+          <span class="btn-text">Sign In</span>
+          <svg class="btn-loader hidden w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </button>
+      </form>
+
+      <!-- Divider -->
+      <div class="relative my-6">
+        <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-200"></div></div>
+        <div class="relative flex justify-center text-xs"><span class="px-3 bg-white text-gray-500">Secure Access</span></div>
+      </div>
+
+      <!-- Security Note -->
+      <div class="flex items-start space-x-3 p-4 bg-[#003366]/5 rounded-lg border border-[#003366]/10">
+        <svg class="w-5 h-5 text-[#003366] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+        </svg>
+        <p class="text-xs text-gray-600">Your connection is encrypted. Never share your credentials. <a href="#" class="text-[#003366] hover:underline">Learn more</a></p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <p class="text-center text-white/90 text-sm mt-6 drop-shadow-sm">
+      &copy; {{ now.year }} NC Library. All rights reserved.
     </p>
-
-    <!-- Login Form -->
-    <form action="{{ url_for('auth.staff_login') }}" method="POST" class="space-y-4">
-      <!-- Email -->
-      <div>
-        <label for="email" class="block text-black font-semibold mb-1">Email</label>
-        <input type="email" name="email" id="email" required
-               class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-[#003366]">
-      </div>
-
-      <!-- Password -->
-      <div>
-        <label for="password" class="block text-black font-semibold mb-1">Password</label>
-        <input type="password" name="password" id="password" required
-               class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-[#003366]">
-      </div>
-
-      <!-- Submit Button -->
-      <button type="submit" 
-              class="w-full bg-[#003366] hover:bg-[#002244] text-white font-semibold py-2 px-4 rounded shadow-lg transition-colors duration-300">
-        Login
-      </button>
-    </form>
   </div>
 </section>
 
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-{% if error %}
+
+<!-- Scripts -->
 <script>
-  Swal.fire({
-    icon: 'error',
-    title: 'Login Failed',
-    text: '{{ error }}',
-    confirmButtonColor: '#003366'
+  // Password toggle
+  document.getElementById('togglePassword')?.addEventListener('click', function() {
+    const input = document.getElementById('password');
+    input.type = input.type === 'password' ? 'text' : 'password';
+    this.querySelector('.toggle-icon--show').classList.toggle('hidden');
+    this.querySelector('.toggle-icon--hidden').classList.toggle('hidden');
   });
+
+  // Loading state on submit
+  document.getElementById('loginForm')?.addEventListener('submit', function(e) {
+    if (this.checkValidity()) {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.querySelector('.btn-text').textContent = 'Signing in...';
+      btn.querySelector('.btn-loader').classList.remove('hidden');
+      setTimeout(() => this.submit(), 300);
+    }
+  });
+
+  // Error alerts
+  {% if error %}
+  Swal.fire({ icon: 'error', title: 'Login Failed', text: '{{ error|safe }}', confirmButtonColor: '#003366', timer: 5000, timerProgressBar: true });
+  {% endif %}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}{% for category, message in messages %}
+      <script>Swal.fire({ icon: '{{ "error" if category == "error" else "info" }}', title: '{{ category.title() }}', text: '{{ message|safe }}', confirmButtonColor: '#003366' });</script>
+    {% endfor %}{% endif %}
+  {% endwith %}
 </script>
-{% endif %}
+
+<style>
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .bg-white\/95 { animation: fadeInUp 0.4s ease-out forwards; }
+  input:focus-visible, button:focus-visible { outline: 2px solid #003366; outline-offset: 2px; }
+  @media (max-width: 640px) { section { background-attachment: scroll !important; } }
+</style>
 {% endblock %}

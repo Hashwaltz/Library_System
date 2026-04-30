@@ -17,7 +17,7 @@ def dashboard():
     # -------------------
     # Metrics
     # -------------------
-    total_users = Student.query.count() + Borrower.query.count() + Guest.query.count()
+    total_users = User.query.count()
     total_books = Book.query.count()
     total_borrowed = Borrow.query.count()
     
