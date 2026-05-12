@@ -1,6 +1,8 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
-from app.utils.decorators import role_required
+from flask import render_template, request, flash, redirect, url_for
 from werkzeug.security import generate_password_hash
+from flask_login import login_required
+
+from app.utils.decorators import role_required
 from app.extensions import db
 from app.models.user import User
 from app.utils.helpers import log_audit
@@ -11,7 +13,8 @@ from . import admin_bp
 
 
 @admin_bp.route("/manage_librarians")
-@role_required("admin")
+@login_required
+@role_required("Admin")
 def manage_librarians():
     librarians = User.query.order_by(User.username.asc()).all()
     users_data = [
@@ -29,7 +32,7 @@ def manage_librarians():
 
 
 @admin_bp.route("/add_librarian", methods=["POST"])
-@role_required("admin")
+@role_required("Admin")
 def add_librarian():
     username = request.form.get("username")
     email = request.form.get("email")
@@ -73,7 +76,8 @@ def add_librarian():
 
 
 @admin_bp.route("/edit_librarian/<int:user_id>", methods=["POST"])
-@role_required("admin")
+@login_required
+@role_required("Admin")
 def edit_librarian(user_id):
     librarian = User.query.get_or_404(user_id)
 

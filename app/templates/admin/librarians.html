@@ -1,4 +1,5 @@
 {% extends "admin/admin_base.html" %}
+{% include "admin/modals/librarians_modal.html" %}
 
 {% block title %}Manage Users - NC Library{% endblock %}
 {% block header %}Manage Users{% endblock %}
@@ -75,7 +76,7 @@
                   {{ user.username[0]|upper }}
                 </div>
                 <div class="min-w-0">
-                  <p class="font-semibold text-gray-900 truncate">{{ user.username.capitalize() }}</p>
+                  <p class="font-semibold text-gray-900 truncate">{{ user.username }}</p>
                   <p class="text-xs text-gray-400">ID: #{{ user.id }}</p>
                 </div>
               </div>
@@ -110,7 +111,8 @@
               {% endif %}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right">
-              <div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <!-- ✅ Actions always visible - removed opacity-0 group-hover:opacity-100 -->
+              <div class="flex items-center justify-end gap-1">
                 <button onclick='openEditUserModal({{ user|tojson }})' 
                         class="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-[#1E3A8A] transition-colors" 
                         aria-label="Edit {{ user.username }}">
@@ -165,238 +167,18 @@
   </div>
 
 </div>
-
-<!-- ➕ Add User Modal -->
-<div id="addUserModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="addUserModalTitle">
-  <!-- Backdrop -->
-  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAddUserModal()"></div>
-  
-  <!-- Modal Content -->
-  <div class="relative min-h-full flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl border border-gray-200 animate-slide-in">
-      <!-- Header -->
-      <div class="flex items-center justify-between p-5 border-b border-gray-200">
-        <div>
-          <h3 id="addUserModalTitle" class="text-lg font-semibold text-gray-900">Add New User</h3>
-          <p class="text-sm text-gray-500 mt-0.5">Create a new staff account for the library system.</p>
-        </div>
-        <button onclick="closeAddUserModal()" class="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600" aria-label="Close modal">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      
-      <!-- Form -->
-      <form method="POST" action="{{ url_for('admin.add_librarian') }}" class="p-5 space-y-4">
-        <!-- Full Name -->
-        <div>
-          <label for="addUsername" class="block text-sm font-medium text-gray-700 mb-1">Full Name <span class="text-rose-500">*</span></label>
-          <input type="text" id="addUsername" name="username" required 
-                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent transition-all"
-                 placeholder="e.g., Maria Santos" autocomplete="name">
-        </div>
-        
-        <!-- Email -->
-        <div>
-          <label for="addEmail" class="block text-sm font-medium text-gray-700 mb-1">Email Address <span class="text-rose-500">*</span></label>
-          <input type="email" id="addEmail" name="email" required 
-                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent transition-all"
-                 placeholder="maria@nclibrary.edu" autocomplete="email">
-        </div>
-        
-        <!-- Role -->
-        <div>
-          <label for="addRole" class="block text-sm font-medium text-gray-700 mb-1">Role <span class="text-rose-500">*</span></label>
-          <select id="addRole" name="role" required 
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent bg-white transition-all">
-            <option value="">Select a role</option>
-            <option value="Admin">🔐 Admin - Full system access</option>
-            <option value="Librarian">📚 Librarian - Manage books & borrowers</option>
-            <option value="Staff">👤 Staff - Limited access</option>
-          </select>
-          <p class="text-xs text-gray-400 mt-1 ml-1">Role determines what features the user can access.</p>
-        </div>
-        
-        <!-- Temporary Password -->
-        <div>
-          <label for="addPassword" class="block text-sm font-medium text-gray-700 mb-1">Temporary Password <span class="text-rose-500">*</span></label>
-          <div class="relative">
-            <input type="password" id="addPassword" name="password" required 
-                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent transition-all pr-10"
-                   placeholder="••••••••" autocomplete="new-password">
-            <button type="button" onclick="togglePassword('addPassword')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" aria-label="Toggle password visibility">
-              <i class="fas fa-eye" id="addPasswordIcon"></i>
-            </button>
-          </div>
-          <p class="text-xs text-gray-400 mt-1 ml-1">User will be required to change this on first login.</p>
-        </div>
-        
-        <!-- Active Status -->
-        <div class="flex items-center gap-2 pt-2">
-          <input type="checkbox" id="addIsActive" name="is_active" checked 
-                 class="w-4 h-4 text-[#1E3A8A] border-gray-300 rounded focus:ring-[#1E3A8A]">
-          <label for="addIsActive" class="text-sm text-gray-700">Account is active immediately</label>
-        </div>
-        
-        <!-- Actions -->
-        <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
-          <button type="button" onclick="closeAddUserModal()" 
-                  class="px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
-            Cancel
-          </button>
-          <button type="submit" 
-                  class="px-4 py-2.5 text-sm font-medium text-white bg-[#1E3A8A] hover:bg-[#1E40AF] rounded-lg transition-colors shadow-sm hover:shadow">
-            Create Account
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<!-- ✏️ Edit User Modal -->
-<div id="editUserModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="editUserModalTitle">
-  <!-- Backdrop -->
-  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeEditUserModal()"></div>
-  
-  <!-- Modal Content -->
-  <div class="relative min-h-full flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl border border-gray-200 animate-slide-in">
-      <!-- Header -->
-      <div class="flex items-center justify-between p-5 border-b border-gray-200">
-        <div>
-          <h3 id="editUserModalTitle" class="text-lg font-semibold text-gray-900">Edit User</h3>
-          <p class="text-sm text-gray-500 mt-0.5">Update account details for <span id="editUserNameDisplay" class="font-medium text-gray-900"></span>.</p>
-        </div>
-        <button onclick="closeEditUserModal()" class="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600" aria-label="Close modal">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      
-      <!-- Form -->
-      <form id="editUserForm" method="POST" class="p-5 space-y-4">
-        <input type="hidden" name="user_id" id="editUserId">
-        
-        <!-- Full Name -->
-        <div>
-          <label for="editUsername" class="block text-sm font-medium text-gray-700 mb-1">Full Name <span class="text-rose-500">*</span></label>
-          <input type="text" id="editUsername" name="username" required 
-                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent transition-all"
-                 placeholder="Full name">
-        </div>
-        
-        <!-- Email -->
-        <div>
-          <label for="editEmail" class="block text-sm font-medium text-gray-700 mb-1">Email Address <span class="text-rose-500">*</span></label>
-          <input type="email" id="editEmail" name="email" required 
-                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent transition-all"
-                 placeholder="email@example.com">
-        </div>
-        
-        <!-- Role -->
-        <div>
-          <label for="editRole" class="block text-sm font-medium text-gray-700 mb-1">Role <span class="text-rose-500">*</span></label>
-          <select id="editRole" name="role" required 
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent bg-white transition-all">
-            <option value="">Select a role</option>
-            <option value="Admin">🔐 Admin</option>
-            <option value="Librarian">📚 Librarian</option>
-            <option value="Staff">👤 Staff</option>
-          </select>
-        </div>
-        
-        <!-- Active Status -->
-        <div class="flex items-center gap-2 pt-2">
-          <input type="checkbox" id="editIsActive" name="is_active" 
-                 class="w-4 h-4 text-[#1E3A8A] border-gray-300 rounded focus:ring-[#1E3A8A]">
-          <label for="editIsActive" class="text-sm text-gray-700">Account is active</label>
-        </div>
-        
-        <!-- Actions -->
-        <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
-          <button type="button" onclick="closeEditUserModal()" 
-                  class="px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
-            Cancel
-          </button>
-          <button type="submit" 
-                  class="px-4 py-2.5 text-sm font-medium text-white bg-[#1E3A8A] hover:bg-[#1E40AF] rounded-lg transition-colors shadow-sm hover:shadow">
-            Save Changes
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
 <script>
-  // ===== Modal Functions =====
-  function openAddUserModal() {
-    document.getElementById('addUserModal').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-    // Focus first input after animation
-    setTimeout(() => document.getElementById('addUsername')?.focus(), 100);
-  }
-
-  function closeAddUserModal() {
-    document.getElementById('addUserModal').classList.add('hidden');
-    document.body.style.overflow = '';
-  }
-
-  function openEditUserModal(user) {
-    document.getElementById('editUserModal').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-    
-    // Populate form
-    document.getElementById('editUserId').value = user.id;
-    document.getElementById('editUsername').value = user.username || '';
-    document.getElementById('editEmail').value = user.email || '';
-    document.getElementById('editRole').value = user.role || '';
-    document.getElementById('editIsActive').checked = user.is_active;
-    document.getElementById('editUserNameDisplay').textContent = user.username?.capitalize?.() || 'this user';
-    
-    // Set form action
-    document.getElementById('editUserForm').action = `/admin/edit_librarian/${user.id}`;
-    
-    // Focus first input
-    setTimeout(() => document.getElementById('editUsername')?.focus(), 100);
-  }
-
-  function closeEditUserModal() {
-    document.getElementById('editUserModal').classList.add('hidden');
-    document.body.style.overflow = '';
-  }
-
-  // Close modals on Escape key
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      closeAddUserModal();
-      closeEditUserModal();
-    }
-  });
-
-  // ===== Password Toggle =====
-  function togglePassword(inputId) {
-    const input = document.getElementById(inputId);
-    const icon = document.getElementById(inputId + 'Icon');
-    if (input.type === 'password') {
-      input.type = 'text';
-      icon.classList.replace('fa-eye', 'fa-eye-slash');
-    } else {
-      input.type = 'password';
-      icon.classList.replace('fa-eye-slash', 'fa-eye');
-    }
-  }
-
-  // ===== Search & Filter Logic =====
+  // ===== Search & Filter Logic Only (Modals moved to librarians_modal.html) =====
   const searchInput = document.getElementById('searchInput');
   const clearSearch = document.getElementById('clearSearch');
   const roleFilter = document.getElementById('roleFilter');
   const statusFilter = document.getElementById('statusFilter');
   const tableBody = document.getElementById('usersTableBody');
-  const rows = Array.from(tableBody.querySelectorAll('tr[data-username]')); // Only data rows
+  const rows = Array.from(tableBody.querySelectorAll('tr[data-username]'));
   
   const rowsPerPage = 10;
   let currentPage = 1;
@@ -430,33 +212,27 @@
   }
 
   function updateClearButton() {
-    const hasFilters = searchInput.value || roleFilter.value || statusFilter.value;
     clearSearch.classList.toggle('hidden', !searchInput.value);
   }
 
   function renderPage() {
     const totalPages = Math.max(1, Math.ceil(filteredRows.length / rowsPerPage));
     
-    // Hide all rows first
     rows.forEach(row => row.style.display = 'none');
     
-    // Show current page rows
     const start = (currentPage - 1) * rowsPerPage;
     const end = start + rowsPerPage;
     filteredRows.slice(start, end).forEach(row => row.style.display = '');
     
-    // Update pagination UI
     document.getElementById('currentPage').textContent = currentPage;
     document.getElementById('prevPage').disabled = currentPage <= 1;
     document.getElementById('nextPage').disabled = currentPage >= totalPages;
     
-    // Update showing info
     const showingStart = filteredRows.length === 0 ? 0 : start + 1;
     const showingEnd = Math.min(end, filteredRows.length);
     document.getElementById('showingStart').textContent = showingStart;
     document.getElementById('showingEnd').textContent = showingEnd;
     
-    // Show/hide empty state
     const emptyRow = tableBody.querySelector('tr td[colspan]');
     if (emptyRow) {
       emptyRow.closest('tr').style.display = filteredRows.length === 0 ? '' : 'none';
@@ -488,45 +264,47 @@
     }
   });
 
-  // Initialize
-  updateClearButton();
-  renderPage();
+  // Initialize on DOM ready
+  document.addEventListener('DOMContentLoaded', () => {
+    updateClearButton();
+    renderPage();
+  });
 
-  // ===== Delete Confirmation =====
+  // ===== Delete Confirmation (uses Swal from base template) =====
   function confirmDeleteUser(userId, username) {
-    Swal.fire({
-      title: 'Delete User?',
-      html: `Are you sure you want to delete <strong>${username}</strong>?<br><br><span class="text-sm text-gray-500">This action cannot be undone.</span>`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#dc2626',
-      cancelButtonColor: '#6b7280',
-      confirmButtonText: 'Yes, delete',
-      cancelButtonText: 'Cancel',
-      background: '#ffffff',
-      color: '#1f2937',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Redirect to delete endpoint
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        title: 'Delete User?',
+        html: `Are you sure you want to delete <strong>${username}</strong>?<br><br><span class="text-sm text-gray-500">This action cannot be undone.</span>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, delete',
+        cancelButtonText: 'Cancel',
+        background: '#ffffff',
+        color: '#1f2937',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = `/admin/delete_librarian/${userId}`;
+        }
+      });
+    } else {
+      if (confirm(`Delete ${username}? This cannot be undone.`)) {
         window.location.href = `/admin/delete_librarian/${userId}`;
       }
-    });
+    }
   }
 
-  // ===== Helper: Capitalize =====
+  // ✅ Safe capitalize helper (avoids prototype pollution)
+  function capitalize(str) {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+  
+  // Make capitalize available globally for inline template usage
   String.prototype.capitalize = function() {
-    return this.charAt(0).toUpperCase() + this.slice(1);
+    return capitalize(this);
   };
 </script>
-
-<!-- Animation Styles -->
-<style>
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(20px) scale(0.98); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-  .animate-slide-in {
-    animation: slideIn 0.2s ease-out;
-  }
-</style>
 {% endblock %}

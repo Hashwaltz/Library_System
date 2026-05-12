@@ -449,9 +449,13 @@
 
       <!-- Footer - Light Theme -->
       <footer class="px-6 py-4 border-t border-gray-200 text-center text-sm text-gray-500">
-        <p>© {{ now.year if now else 2024 }} NC Library Admin Panel. All rights reserved.</p>
+        <p>© {{ 2026 if now else 2024 }} NC Library Admin Panel. All rights reserved.</p>
       </footer>
     </div>
+
+    <!-- ✅ MODALS - MOVED HERE (outside main content, before closing body) -->
+    {% include "admin/modals/reminders_modal.html" %}
+    {% include "admin/modals/notes_modal.html" %}
 
     <!-- Scripts - Light Theme Only -->
     {% block scripts %}

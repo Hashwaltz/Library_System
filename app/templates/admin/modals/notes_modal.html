@@ -1,0 +1,330 @@
+{# app/templates/admin/modals/notes_modal.html #}
+
+<div id="notesModal" class="fixed inset-0 z-[9999] hidden" role="dialog" aria-modal="true">
+  <!-- Backdrop -->
+  <div class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" 
+       onclick="closeNotesModal()"
+       aria-hidden="true"></div>
+  
+  <!-- Modal Container -->
+  <div class="fixed inset-0 flex items-center justify-center p-4 pointer-events-none">
+    <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-gray-200 animate-scale-in pointer-events-auto max-h-[90vh] overflow-y-auto">
+      
+      <!-- Header -->
+      <div class="flex items-center justify-between p-5 border-b border-gray-200 sticky top-0 bg-white rounded-t-2xl z-10">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center">
+            <i class="fas fa-sticky-note text-indigo-600 text-lg"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900">Manage Notes</h3>
+            <p class="text-xs text-gray-500">Add, edit, or remove internal notes</p>
+          </div>
+        </div>
+        <button onclick="closeNotesModal()" 
+                class="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Form -->
+      <form id="noteForm" class="p-5 space-y-4" onsubmit="handleNoteSubmit(event)">
+        <input type="hidden" id="noteId" name="id">
+        
+        <!-- Title -->
+        <div>
+          <label for="noteTitle" class="block text-sm font-medium text-gray-700 mb-1.5">
+            Note Title <span class="text-rose-500">*</span>
+          </label>
+          <input type="text" id="noteTitle" name="title" required
+                 placeholder="e.g., System maintenance notes"
+                 class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] transition-all text-sm">
+        </div>
+
+        <!-- Content -->
+        <div>
+          <label for="noteContent" class="block text-sm font-medium text-gray-700 mb-1.5">
+            Content <span class="text-rose-500">*</span>
+          </label>
+          <textarea id="noteContent" name="content" rows="5" required
+                    placeholder="Write your internal note here..."
+                    class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] transition-all text-sm resize-none"></textarea>
+        </div>
+
+        <!-- Color Theme Selector -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Color Theme</label>
+          <div class="flex flex-wrap gap-2" id="colorOptions">
+            {% set colors = [
+              {'name': 'indigo', 'class': 'bg-indigo-500', 'selected': true},
+              {'name': 'emerald', 'class': 'bg-emerald-500'},
+              {'name': 'amber', 'class': 'bg-amber-500'},
+              {'name': 'rose', 'class': 'bg-rose-500'},
+              {'name': 'violet', 'class': 'bg-violet-500'},
+              {'name': 'cyan', 'class': 'bg-cyan-500'}
+            ] %}
+            {% for color in colors %}
+            <button type="button" data-color="{{ color.name }}"
+                    class="w-8 h-8 rounded-full {{ color.class }} ring-2 ring-offset-2 transition-all {% if color.selected %}ring-[#1E3A8A]{% else %}ring-transparent hover:ring-gray-300{% endif %}"
+                    onclick="selectNoteColor(this)"
+                    aria-label="Select {{ color.name }} theme">
+            </button>
+            {% endfor %}
+          </div>
+          <input type="hidden" id="noteColor" name="color" value="indigo">
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+          <button type="button" id="deleteNoteBtn" onclick="handleDeleteNote()"
+                  class="px-4 py-2 text-sm font-medium text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors hidden">
+            <i class="fas fa-trash-can mr-1"></i> Delete
+          </button>
+          <div class="flex gap-2 ml-auto">
+            <button type="button" onclick="closeNotesModal()"
+                    class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+              Cancel
+            </button>
+            <button type="submit"
+                    class="px-5 py-2 text-sm font-medium bg-[#1E3A8A] hover:bg-[#1E40AF] text-white rounded-lg transition-colors shadow-sm flex items-center gap-2">
+              <i class="fas fa-save"></i> <span id="noteSubmitText">Save Note</span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== Notes Modal Functions =====
+
+function openNotesModal(note = null) {
+  const modal = document.getElementById('notesModal');
+  const form = document.getElementById('noteForm');
+  const deleteBtn = document.getElementById('deleteNoteBtn');
+  const submitText = document.getElementById('noteSubmitText');
+  
+  // Reset form
+  form.reset();
+  document.getElementById('noteId').value = '';
+  document.getElementById('noteColor').value = 'indigo';
+  
+  if (note) {
+    // Edit mode
+    submitText.textContent = 'Update Note';
+    deleteBtn.classList.remove('hidden');
+    
+    document.getElementById('noteTitle').value = note.title || '';
+    document.getElementById('noteContent').value = note.content || '';
+    document.getElementById('noteId').value = note.id || '';
+    document.getElementById('noteColor').value = note.color || 'indigo';
+    
+    // Update color selection UI
+    document.querySelectorAll('#colorOptions button').forEach(btn => {
+      const isSelected = btn.dataset.color === (note.color || 'indigo');
+      btn.classList.toggle('ring-[#1E3A8A]', isSelected);
+      btn.classList.toggle('ring-transparent', !isSelected);
+    });
+  } else {
+    // Add mode
+    submitText.textContent = 'Save Note';
+    deleteBtn.classList.add('hidden');
+    
+    // Reset color selection to default
+    document.querySelectorAll('#colorOptions button').forEach(btn => {
+      const isDefault = btn.dataset.color === 'indigo';
+      btn.classList.toggle('ring-[#1E3A8A]', isDefault);
+      btn.classList.toggle('ring-transparent', !isDefault);
+    });
+  }
+  
+  modal.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('noteTitle')?.focus(), 100);
+}
+
+function closeNotesModal() {
+  const modal = document.getElementById('notesModal');
+  modal.classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+function selectNoteColor(btn) {
+  const color = btn.dataset.color;
+  document.getElementById('noteColor').value = color;
+  
+  document.querySelectorAll('#colorOptions button').forEach(b => {
+    b.classList.remove('ring-[#1E3A8A]');
+    b.classList.add('ring-transparent');
+  });
+  btn.classList.remove('ring-transparent');
+  btn.classList.add('ring-[#1E3A8A]');
+}
+
+async function handleNoteSubmit(event) {
+  event.preventDefault();
+  
+  const submitBtn = event.target.querySelector('button[type="submit"]');
+  const originalBtnContent = submitBtn.innerHTML;
+  
+  // Loading state
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+  
+  const formData = {
+    id: document.getElementById('noteId').value,
+    title: document.getElementById('noteTitle').value.trim(),
+    content: document.getElementById('noteContent').value.trim(),
+    color: document.getElementById('noteColor').value
+  };
+  
+  if (!formData.title || !formData.content) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Missing Fields',
+      text: 'Both title and content are required',
+      confirmButtonColor: '#1E3A8A'
+    });
+    resetNoteSubmitButton(submitBtn, originalBtnContent);
+    return;
+  }
+  
+  try {
+    const method = formData.id ? 'PUT' : 'POST';
+    const response = await fetch('/admin/notes', {
+      method: method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    });
+    
+    const result = await response.json();
+    
+    if (response.ok) {
+      closeNotesModal();
+      Swal.fire({
+        icon: 'success',
+        title: formData.id ? 'Note Updated!' : 'Note Created!',
+        text: 'Your internal note has been saved.',
+        confirmButtonColor: '#1E3A8A',
+        timer: 2000,
+        timerProgressBar: true
+      }).then(() => {
+        if (typeof loadNotes === 'function') {
+          loadNotes();
+        } else {
+          location.reload();
+        }
+      });
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Save Failed',
+        text: result.error || 'Could not save note. Please try again.',
+        confirmButtonColor: '#1E3A8A'
+      });
+    }
+  } catch (error) {
+    console.error('Note error:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Connection Error',
+      text: 'Unable to reach the server. Please check your connection.',
+      confirmButtonColor: '#1E3A8A'
+    });
+  } finally {
+    resetNoteSubmitButton(submitBtn, originalBtnContent);
+  }
+}
+
+async function handleDeleteNote() {
+  const id = document.getElementById('noteId').value;
+  if (!id) return;
+  
+  const result = await Swal.fire({
+    title: 'Delete Note?',
+    text: 'This action cannot be undone.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#dc2626',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Yes, delete',
+    cancelButtonText: 'Cancel',
+    background: '#ffffff',
+    color: '#1f2937'
+  });
+  
+  if (!result.isConfirmed) return;
+  
+  try {
+    const response = await fetch(`/admin/notes/${id}`, {
+      method: 'DELETE'
+    });
+    
+    if (response.ok) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Note Deleted',
+        text: 'The note has been permanently removed.',
+        confirmButtonColor: '#1E3A8A',
+        timer: 1500,
+        timerProgressBar: true
+      }).then(() => {
+        closeNotesModal();
+        if (typeof loadNotes === 'function') {
+          loadNotes();
+        } else {
+          location.reload();
+        }
+      });
+    } else {
+      const err = await response.json();
+      Swal.fire({
+        icon: 'error',
+        title: 'Delete Failed',
+        text: err.error || 'Could not delete note.',
+        confirmButtonColor: '#1E3A8A'
+      });
+    }
+  } catch (error) {
+    console.error('Delete error:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Connection Error',
+      text: 'Unable to reach the server.',
+      confirmButtonColor: '#1E3A8A'
+    });
+  }
+}
+
+function resetNoteSubmitButton(btn, originalContent) {
+  btn.disabled = false;
+  btn.innerHTML = originalContent;
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('notesModal');
+    if (!modal.classList.contains('hidden')) {
+      closeNotesModal();
+    }
+  }
+  // Ctrl/Cmd + S to save
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    const modal = document.getElementById('notesModal');
+    if (!modal.classList.contains('hidden')) {
+      document.getElementById('noteForm')?.requestSubmit();
+    }
+  }
+});
+</script>
+
+<style>
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-scale-in { animation: scale-in 0.2s ease-out; }
+</style>

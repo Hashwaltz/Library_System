@@ -1,0 +1,332 @@
+{# app/templates/admin/modals/librarians_modal.html #}
+{# Librarian User Management Modals - Add/Edit #}
+
+<!-- ➕ Add User Modal -->
+<div id="addUserModal" class="fixed inset-0 z-50 hidden overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="addUserModalTitle">
+  <!-- Backdrop -->
+  <div class="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity" 
+       onclick="closeAddUserModal()"
+       aria-hidden="true"></div>
+  
+  <!-- Modal Panel -->
+  <div class="flex min-h-full items-center justify-center p-4">
+    <div class="relative w-full max-w-lg transform rounded-2xl bg-white shadow-2xl border border-gray-200 transition-all animate-slide-in">
+      
+      <!-- Header -->
+      <div class="flex items-center justify-between p-5 border-b border-gray-200">
+        <div>
+          <h3 id="addUserModalTitle" class="text-lg font-semibold text-gray-900">Add New User</h3>
+          <p class="text-sm text-gray-500 mt-0.5">Create a new staff account for the library system.</p>
+        </div>
+        <button onclick="closeAddUserModal()" 
+                class="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600" 
+                aria-label="Close modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <!-- Form -->
+      <form id="addUserForm" method="POST" action="{{ url_for('admin.add_librarian') }}" class="p-5 space-y-4">
+        <!-- Full Name -->
+        <div>
+          <label for="addUsername" class="block text-sm font-medium text-gray-700 mb-1">Full Name <span class="text-rose-500">*</span></label>
+          <input type="text" id="addUsername" name="username" required 
+                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent transition-all"
+                 placeholder="e.g., Maria Santos" autocomplete="name">
+        </div>
+        
+        <!-- Email -->
+        <div>
+          <label for="addEmail" class="block text-sm font-medium text-gray-700 mb-1">Email Address <span class="text-rose-500">*</span></label>
+          <input type="email" id="addEmail" name="email" required 
+                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent transition-all"
+                 placeholder="maria@nclibrary.edu" autocomplete="email">
+        </div>
+        
+        <!-- Role -->
+        <div>
+          <label for="addRole" class="block text-sm font-medium text-gray-700 mb-1">Role <span class="text-rose-500">*</span></label>
+          <select id="addRole" name="role" required 
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent bg-white transition-all">
+            <option value="">Select a role</option>
+            <option value="Admin"><i class="fas fa-lock text-gray-400 mr-1.5"></i>Admin - Full system access</option>
+            <option value="Librarian"><i class="fas fa-book-open text-gray-400 mr-1.5"></i>Librarian - Manage books & borrowers</option>
+            <option value="Staff"><i class="fas fa-user text-gray-400 mr-1.5"></i>Staff - Limited access</option>
+          </select>
+          <p class="text-xs text-gray-400 mt-1 ml-1">Role determines what features the user can access.</p>
+        </div>
+        
+        <!-- Temporary Password -->
+        <div>
+          <label for="addPassword" class="block text-sm font-medium text-gray-700 mb-1">Temporary Password <span class="text-rose-500">*</span></label>
+          <div class="relative">
+            <input type="password" id="addPassword" name="password" required 
+                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent transition-all pr-10"
+                   placeholder="••••••••" autocomplete="new-password">
+            <button type="button" onclick="togglePassword('addPassword')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" aria-label="Toggle password visibility">
+              <i class="fas fa-eye" id="addPasswordIcon"></i>
+            </button>
+          </div>
+          <p class="text-xs text-gray-400 mt-1 ml-1">User will be required to change this on first login.</p>
+        </div>
+        
+        <!-- Active Status -->
+        <div class="flex items-center gap-2 pt-2">
+          <input type="checkbox" id="addIsActive" name="is_active" checked 
+                 class="w-4 h-4 text-[#1E3A8A] border-gray-300 rounded focus:ring-[#1E3A8A]">
+          <label for="addIsActive" class="text-sm text-gray-700">Account is active immediately</label>
+        </div>
+        
+        <!-- Actions -->
+        <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+          <button type="button" onclick="closeAddUserModal()" 
+                  class="px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+            Cancel
+          </button>
+          <button type="submit" 
+                  class="px-4 py-2.5 text-sm font-medium text-white bg-[#1E3A8A] hover:bg-[#1E40AF] rounded-lg transition-colors shadow-sm hover:shadow">
+            Create Account
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ✏️ Edit User Modal -->
+<div id="editUserModal" class="fixed inset-0 z-50 hidden overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="editUserModalTitle">
+  <!-- Backdrop -->
+  <div class="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity" 
+       onclick="closeEditUserModal()"
+       aria-hidden="true"></div>
+  
+  <!-- Modal Panel -->
+  <div class="flex min-h-full items-center justify-center p-4">
+    <div class="relative w-full max-w-lg transform rounded-2xl bg-white shadow-2xl border border-gray-200 transition-all animate-slide-in">
+      
+      <!-- Header -->
+      <div class="flex items-center justify-between p-5 border-b border-gray-200">
+        <div>
+          <h3 id="editUserModalTitle" class="text-lg font-semibold text-gray-900">Edit User</h3>
+          <p class="text-sm text-gray-500 mt-0.5">Update account details for <span id="editUserNameDisplay" class="font-medium text-gray-900"></span>.</p>
+        </div>
+        <button onclick="closeEditUserModal()" 
+                class="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600" 
+                aria-label="Close modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <!-- Form -->
+      <form id="editUserForm" method="POST" class="p-5 space-y-4">
+        <input type="hidden" name="user_id" id="editUserId">
+        
+        <!-- Full Name -->
+        <div>
+          <label for="editUsername" class="block text-sm font-medium text-gray-700 mb-1">Full Name <span class="text-rose-500">*</span></label>
+          <input type="text" id="editUsername" name="username" required 
+                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent transition-all"
+                 placeholder="Full name">
+        </div>
+        
+        <!-- Email -->
+        <div>
+          <label for="editEmail" class="block text-sm font-medium text-gray-700 mb-1">Email Address <span class="text-rose-500">*</span></label>
+          <input type="email" id="editEmail" name="email" required 
+                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent transition-all"
+                 placeholder="email@example.com">
+        </div>
+        
+        <!-- Role -->
+        <div>
+          <label for="editRole" class="block text-sm font-medium text-gray-700 mb-1">Role <span class="text-rose-500">*</span></label>
+          <select id="editRole" name="role" required 
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent bg-white transition-all">
+            <option value="">Select a role</option>
+            <option value="Admin"><i class="fas fa-lock text-gray-400 mr-1.5"></i>Admin</option>
+            <option value="Librarian"><i class="fas fa-book-open text-gray-400 mr-1.5"></i>Librarian</option>
+            <option value="Staff"><i class="fas fa-user text-gray-400 mr-1.5"></i>Staff</option>
+          </select>
+        </div>
+        
+        <!-- Active Status -->
+        <div class="flex items-center gap-2 pt-2">
+          <input type="checkbox" id="editIsActive" name="is_active" 
+                 class="w-4 h-4 text-[#1E3A8A] border-gray-300 rounded focus:ring-[#1E3A8A]">
+          <label for="editIsActive" class="text-sm text-gray-700">Account is active</label>
+        </div>
+        
+        <!-- Actions -->
+        <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+          <button type="button" onclick="closeEditUserModal()" 
+                  class="px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+            Cancel
+          </button>
+          <button type="submit" 
+                  class="px-4 py-2.5 text-sm font-medium text-white bg-[#1E3A8A] hover:bg-[#1E40AF] rounded-lg transition-colors shadow-sm hover:shadow">
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== Librarian Modal Functions (Bug-Fixed Pattern) =====
+
+function openAddUserModal() {
+  const modal = document.getElementById('addUserModal');
+  const form = document.getElementById('addUserForm');
+  
+  // ✅ CRITICAL FIX: Reset form completely before showing
+  if (form) form.reset();
+  document.getElementById('addPassword')?.value && (document.getElementById('addPassword').value = '');
+  document.getElementById('addIsActive').checked = true;
+  
+  modal.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  
+  // Focus with proper timing to avoid race conditions
+  setTimeout(() => {
+    const input = document.getElementById('addUsername');
+    if (input) {
+      input.focus();
+      input.select?.();
+    }
+  }, 150);
+}
+
+function closeAddUserModal() {
+  const modal = document.getElementById('addUserModal');
+  modal.classList.add('hidden');
+  document.body.style.overflow = '';
+  // ✅ Clear form after close to prevent data leakage
+  document.getElementById('addUserForm')?.reset();
+}
+
+function openEditUserModal(user) {
+  const modal = document.getElementById('editUserModal');
+  
+  // ✅ Properly populate fields with null-safe access
+  document.getElementById('editUserId').value = user.id || '';
+  document.getElementById('editUsername').value = user.username || '';
+  document.getElementById('editEmail').value = user.email || '';
+  document.getElementById('editRole').value = user.role || '';
+  document.getElementById('editIsActive').checked = !!user.is_active;
+  document.getElementById('editUserNameDisplay').textContent = 
+    (user.username?.charAt?.(0)?.toUpperCase?.() + user.username?.slice?.(1)) || 'this user';
+  
+  // Set form action dynamically
+  const form = document.getElementById('editUserForm');
+  if (form && user.id) {
+    form.action = `/admin/edit_librarian/${user.id}`;
+  }
+  
+  modal.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  
+  setTimeout(() => {
+    const input = document.getElementById('editUsername');
+    if (input) {
+      input.focus();
+      input.select?.();
+    }
+  }, 150);
+}
+
+function closeEditUserModal() {
+  const modal = document.getElementById('editUserModal');
+  modal.classList.add('hidden');
+  document.body.style.overflow = '';
+  document.getElementById('editUserForm')?.reset();
+}
+
+// Close modals on Escape key (with safety check)
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const addModal = document.getElementById('addUserModal');
+    const editModal = document.getElementById('editUserModal');
+    if (addModal && !addModal.classList.contains('hidden')) closeAddUserModal();
+    if (editModal && !editModal.classList.contains('hidden')) closeEditUserModal();
+  }
+});
+
+// Close on backdrop click (prevent closing when clicking inside modal)
+document.querySelectorAll('#addUserModal > div:first-child, #editUserModal > div:first-child').forEach(backdrop => {
+  backdrop.addEventListener('click', (e) => {
+    if (e.target === backdrop) {
+      closeAddUserModal();
+      closeEditUserModal();
+    }
+  });
+});
+
+// ===== Password Toggle =====
+function togglePassword(inputId) {
+  const input = document.getElementById(inputId);
+  const icon = document.getElementById(inputId + 'Icon');
+  if (!input || !icon) return;
+  
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.classList.replace('fa-eye', 'fa-eye-slash');
+  } else {
+    input.type = 'password';
+    icon.classList.replace('fa-eye-slash', 'fa-eye');
+  }
+}
+
+// ===== Delete Confirmation =====
+function confirmDeleteUser(userId, username) {
+  if (typeof Swal !== 'undefined') {
+    Swal.fire({
+      title: 'Delete User?',
+      html: `Are you sure you want to delete <strong>${username}</strong>?<br><br><span class="text-sm text-gray-500">This action cannot be undone.</span>`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, delete',
+      cancelButtonText: 'Cancel',
+      background: '#ffffff',
+      color: '#1f2937',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = `/admin/delete_librarian/${userId}`;
+      }
+    });
+  } else {
+    // Fallback if Swal not loaded
+    if (confirm(`Delete ${username}? This cannot be undone.`)) {
+      window.location.href = `/admin/delete_librarian/${userId}`;
+    }
+  }
+}
+
+// ✅ Helper: Safe capitalize (avoids prototype pollution)
+function capitalize(str) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+</script>
+
+<style>
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-slide-in {
+  animation: slideIn 0.2s ease-out;
+}
+/* Prevent body scroll when modal is open */
+body.modal-open {
+  overflow: hidden;
+}
+/* Style for icons inside select options */
+select option i {
+  display: inline-block;
+  width: 16px;
+  text-align: center;
+}
+</style>

@@ -60,7 +60,8 @@ class Borrow(db.Model):
 
     borrower = db.relationship(
         'Borrower',
-        backref=db.backref('borrow_records_borrower', lazy=True)
+        foreign_keys=[borrower_id],
+        back_populates='borrowed_books'
     )
 
     guest = db.relationship(

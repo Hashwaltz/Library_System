@@ -211,38 +211,42 @@
       </div>
 
       <div class="divide-y divide-gray-100">
-        {% set reminder_items = [
-          {'icon': 'fa-exclamation-circle', 'color': 'red', 'title': 'Check overdue books', 'desc': 'Monitor and notify overdue patrons.', 'urgent': true},
-          {'icon': 'fa-user-plus', 'color': 'emerald', 'title': 'Approve new registrations', 'desc': 'Review and verify new members.', 'urgent': false},
-          {'icon': 'fa-sync-alt', 'color': 'amber', 'title': 'Update catalog weekly', 'desc': 'Add newly acquired books.', 'urgent': false},
-          {'icon': 'fa-chart-line', 'color': 'violet', 'title': 'Review analytics', 'desc': 'Analyze book activity trends.', 'urgent': false}
-        ] %}
-        
-        {% for item in reminder_items %}
-        <article class="p-4 hover:bg-gray-50 transition-colors group">
-          <div class="flex items-start gap-3">
-            <div class="bg-{{ item.color }}-100 text-{{ item.color }}-600 p-2.5 rounded-xl flex-shrink-0 group-hover:scale-110 transition-transform">
-              <i class="fas {{ item.icon }}"></i>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2">
-                <p class="font-medium text-gray-900">{{ item.title }}</p>
-                {% if item.urgent %}
-                <span class="text-[10px] font-bold bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded">Urgent</span>
-                {% endif %}
+        {% if reminders %}
+          {% for reminder in reminders %}
+          <article class="p-4 hover:bg-gray-50 transition-colors group">
+            <div class="flex items-start gap-3">
+              <!-- Dynamic icon & color based on urgency -->
+              {% if reminder.is_urgent %}
+                <div class="bg-red-100 text-red-600 p-2.5 rounded-xl flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <i class="fas fa-exclamation-circle"></i>
+                </div>
+              {% else %}
+                <div class="bg-blue-100 text-blue-600 p-2.5 rounded-xl flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <i class="fas fa-bell"></i>
+                </div>
+              {% endif %}
+
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <p class="font-medium text-gray-900 truncate">{{ reminder.title }}</p>
+                  {% if reminder.is_urgent %}
+                  <span class="text-[10px] font-bold bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded">Urgent</span>
+                  {% endif %}
+                </div>
+                <p class="text-sm text-gray-500 mt-0.5">{{ reminder.description or reminder.content or '' }}</p>
               </div>
-              <p class="text-sm text-gray-500 mt-0.5">{{ item.desc }}</p>
             </div>
-            <button class="p-1.5 rounded-lg hover:bg-gray-200 transition-colors text-gray-400 hover:text-gray-600" aria-label="Mark as done">
-              <i class="fas fa-check text-sm"></i>
-            </button>
+          </article>
+          {% endfor %}
+        {% else %}
+          <div class="p-6 text-center text-gray-500">
+            <i class="fas fa-bell-slash text-2xl mb-2"></i>
+            <p>No reminders yet. Add one below!</p>
           </div>
-        </article>
-        {% endfor %}
+        {% endif %}
       </div>
-      
       <div class="p-4 border-t border-gray-200 bg-gray-50">
-        <button class="w-full py-2 text-sm font-medium text-[#1E3A8A] hover:text-[#1E40AF] transition-colors flex items-center justify-center gap-2">
+        <button id="addReminderBtn" class="w-full py-2 text-sm font-medium text-[#1E3A8A] hover:text-[#1E40AF] transition-colors flex items-center justify-center gap-2">
           <i class="fas fa-plus"></i> Add New Reminder
         </button>
       </div>
@@ -255,30 +259,90 @@
           <h3 id="notes-title" class="text-lg font-semibold text-gray-900 flex items-center gap-2">
             <i class="fas fa-sticky-note text-indigo-600"></i> Internal Notes
           </h3>
-          <button class="text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm">
+          <button id="addNoteBtn" onclick="openNotesModal()" 
+                  class="text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm">
             <i class="fas fa-plus text-xs"></i> Add Note
           </button>
         </div>
       </div>
 
       <div class="p-5">
-        <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
-          <div class="flex items-start gap-3">
-            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-              {{ session.username[0]|upper }}
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm text-gray-700 leading-relaxed">
-                Use this section to add internal admin notes, upcoming events, maintenance schedules, or important announcements related to the NC Library system.
-              </p>
-              <div class="mt-3 flex items-center gap-4 text-xs text-gray-400">
-                <span class="flex items-center gap-1"><i class="fas fa-clock"></i> Draft</span>
-                <span class="flex items-center gap-1"><i class="fas fa-eye-slash"></i> Admin only</span>
+        {% if notes %}
+          <!-- Notes List -->
+          <div class="space-y-3">
+            {% for note in notes %}
+            <div onclick="openNotesModal({
+              id: {{ note.id }},
+              title: '{{ note.title|replace("'", "\\'")|safe }}',
+              content: '{{ note.content|replace("'", "\\'")|striptags|safe }}',
+              color: '{{ note.color|default("indigo") }}',
+              created_at: '{{ note.created_at.strftime("%Y-%m-%d %I:%M %p") if note.created_at else "" }}'
+            })"
+                class="group bg-white rounded-xl p-4 shadow-sm border border-gray-200 hover:border-indigo-300 hover:shadow-md transition-all cursor-pointer"
+                role="button"
+                tabindex="0"
+                onkeydown="if(event.key==='Enter'||event.key===' ') this.click()">
+              
+              <div class="flex items-start gap-3">
+                <!-- Color Indicator -->
+                <div class="w-1 h-full min-h-[48px] rounded-full bg-{{ note.color|default('indigo') }}-500 flex-shrink-0"></div>
+                
+                <!-- Content -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-start justify-between gap-2">
+                    <h4 class="text-sm font-semibold text-gray-900 truncate group-hover:text-indigo-700 transition-colors">
+                      {{ note.title }}
+                    </h4>
+                    <i class="fas fa-pen-to-square text-gray-400 group-hover:text-indigo-600 text-xs opacity-0 group-hover:opacity-100 transition-all"></i>
+                  </div>
+                  
+                  <p class="mt-1 text-sm text-gray-600 line-clamp-2 leading-relaxed">
+                    {{ note.content|striptags|truncate(120) }}
+                  </p>
+                  
+                  <!-- Meta -->
+                  <div class="mt-3 flex items-center gap-3 text-xs text-gray-400">
+                    <span class="flex items-center gap-1">
+                      <i class="fas fa-user"></i>
+                      {{ note.user.username if note.user else 'Admin' }}
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <i class="fas fa-clock"></i>
+                      {{ note.created_at.strftime("%b %d, %Y") if note.created_at else 'Just now' }}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
+            {% endfor %}
           </div>
-        </div>
+          
+          <!-- View All Link -->
+          {% if notes|length >= 5 %}
+          <div class="mt-4 text-center">
+            <a href="{{ url_for('admin.manage_notes') }}" 
+              class="text-xs font-medium text-indigo-600 hover:text-indigo-800 inline-flex items-center gap-1">
+              View all notes <i class="fas fa-arrow-right text-[10px]"></i>
+            </a>
+          </div>
+          {% endif %}
+          
+        {% else %}
+          <!-- Empty State -->
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 text-center">
+            <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mx-auto mb-3">
+              <i class="fas fa-sticky-note text-indigo-600 text-lg"></i>
+            </div>
+            <p class="text-sm text-gray-600 font-medium">No notes yet</p>
+            <p class="text-xs text-gray-400 mt-1">Add your first internal note to get started</p>
+            <button onclick="openNotesModal()" 
+                    class="mt-4 text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg transition-colors inline-flex items-center gap-1">
+              <i class="fas fa-plus text-[10px]"></i> Create Note
+            </button>
+          </div>
+        {% endif %}
         
+        <!-- Helper Tip -->
         <div class="mt-4 text-center">
           <p class="text-xs text-gray-400">
             <i class="fas fa-lightbulb mr-1"></i> Tip: Press <kbd class="px-1.5 py-0.5 bg-gray-200 rounded text-gray-600 font-mono">N</kbd> to quickly add a note
@@ -394,6 +458,7 @@
   </section>
 
 </div>
+
 {% endblock %}
 
 {% block scripts %}
@@ -524,10 +589,9 @@
 
   // ===== Keyboard Shortcut for Notes =====
   document.addEventListener('keydown', function(e) {
-    if (e.key.toLowerCase() === 'n' && !e.target.matches('input, textarea')) {
+    if (e.key.toLowerCase() === 'n' && !e.target.matches('input, textarea, [contenteditable]')) {
       e.preventDefault();
-      const addNoteBtn = document.querySelector('[aria-labelledby="notes-title"] button');
-      addNoteBtn?.click();
+      openNotesModal();
     }
   });
 
@@ -538,6 +602,34 @@
       const text = row.textContent.toLowerCase();
       row.style.display = text.includes(term) ? '' : 'none';
     });
+  });
+
+  // ===== MODAL TRIGGER WIRES - ADDED HERE =====
+  
+  // Wire "Add New Reminder" button
+  document.getElementById('addReminderBtn')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    if (typeof openRemindersModal === 'function') {
+      openRemindersModal();
+    }
+  });
+  
+  // Wire "Add Note" button  
+  document.getElementById('addNoteBtn')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    if (typeof openNotesModal === 'function') {
+      openNotesModal();
+    }
+  });
+  
+  // Enhanced N-key shortcut (only when not typing) - already covered above but kept for clarity
+  document.addEventListener('keydown', function(e) {
+    if (e.key.toLowerCase() === 'n' && !e.target.matches('input, textarea, [contenteditable]')) {
+      e.preventDefault();
+      if (typeof openNotesModal === 'function') {
+        openNotesModal();
+      }
+    }
   });
 </script>
 {% endblock %}

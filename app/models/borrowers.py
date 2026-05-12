@@ -27,13 +27,14 @@ class Borrower(db.Model):
         server_default=expression.true()
     )
 
-    # Relationships ⭐
     borrowed_books = db.relationship(
         'Borrow',
-        backref=db.backref('borrower_rel', lazy=True),
-        lazy=True
+        foreign_keys='Borrow.borrower_id',
+        back_populates='borrower',
+        lazy='dynamic'
     )
 
+    
     violations = db.relationship(
         'Violation',
         backref=db.backref('borrower_rel', lazy=True),
